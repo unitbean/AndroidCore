@@ -23,10 +23,10 @@ android {
     }
 }
 
-val verMoxy = "2.1.1"
-val verDagger = "2.26"
+val verMoxy = "2.1.2"
+val verDagger = "2.27"
 val verRetrofit = "2.6.4"
-val verCoroutines = "1.3.3"
+val verCoroutines = "1.3.5"
 
 dependencies {
     implementation(project(":android"))
@@ -66,7 +66,7 @@ dependencies {
 
     // rx android
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.17")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.19")
 
     // dagger 2
     implementation("com.google.dagger:dagger:$verDagger")

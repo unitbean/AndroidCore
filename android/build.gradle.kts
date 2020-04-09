@@ -14,7 +14,7 @@ extra.apply {
 
     set("publishedGroupId", "com.unitbean.core")
     set("artifact", "android")
-    set("libraryVersion", "1.6.0")
+    set("libraryVersion", "1.6.1")
 
     set("libraryDescription", "Boilerplate Android code for UnitBean developers")
     set("siteUrl", "https://github.com/unitbean/androidcore")
@@ -59,9 +59,9 @@ android {
     }
 }
 
-val verMoxy = "2.1.1"
-val verDagger = "2.26"
-val verCoroutines = "1.3.4"
+val verMoxy = "2.1.2"
+val verDagger = "2.27"
+val verCoroutines = "1.3.5"
 val verRetrofit = "2.6.4"
 
 dependencies {
@@ -78,7 +78,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.2.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.17")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.19")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$verCoroutines")
 }
 
