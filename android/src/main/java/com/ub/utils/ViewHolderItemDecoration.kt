@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
 
   override fun onGetOffsets(adapterPosition: Int): Rect = Rect(0, 0, 0, 0)
 
-  override fun onItemDecorate(canvas: Canvas, previousViewHolder: RecyclerView.ViewHolder?) {
+  override fun onItemDecorate(canvas: Canvas, adapterPosition: Int) {
     if (getItem(adapterPosition + 1) is SomeBottomViewHolder) {
       canvas.drawTopDecorator(this, divider, height = itemView.dpToPx(8).toInt())
     } else if (getItem(adapterPosition + 1) is SomeAnotherViewHolder) {
@@ -59,18 +59,14 @@ class ViewHolderItemDecoration : RecyclerView.ItemDecoration() {
     override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         for (i in 0 until parent.childCount) {
             val viewHolder = parent.findContainingViewHolder(parent.getChildAt(i))
-            (viewHolder as? ItemDecoratable)?.let { decoratable ->
-                val previousViewHolder =
-                    parent.findViewHolderForAdapterPosition(viewHolder.adapterPosition.minus(1))
-                decoratable.onItemDecorate(c, previousViewHolder)
-            }
+            (viewHolder as? ItemDecoratable)?.onItemDecorate(c, viewHolder.adapterPosition)
         }
     }
 }
 
 interface ItemDecoratable {
     fun onGetOffsets(adapterPosition: Int): Rect
-    fun onItemDecorate(canvas: Canvas, previousViewHolder: RecyclerView.ViewHolder?)
+    fun onItemDecorate(canvas: Canvas, adapterPosition: Int)
 
     fun Canvas.drawBottomDecorator(
         viewHolder: RecyclerView.ViewHolder,

@@ -24,9 +24,9 @@ android {
 }
 
 val verMoxy = "2.1.2"
-val verDagger = "2.27"
+val verDagger = "2.28.1"
 val verRetrofit = "2.6.4"
-val verCoroutines = "1.3.5"
+val verCoroutines = "1.3.7"
 
 dependencies {
     implementation(project(":android"))

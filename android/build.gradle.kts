@@ -14,7 +14,7 @@ extra.apply {
 
     set("publishedGroupId", "com.unitbean.core")
     set("artifact", "android")
-    set("libraryVersion", "1.6.1")
+    set("libraryVersion", "1.7.0")
 
     set("libraryDescription", "Boilerplate Android code for UnitBean developers")
     set("siteUrl", "https://github.com/unitbean/androidcore")
@@ -61,21 +61,21 @@ android {
 
 val verMoxy = "2.1.2"
 val verDagger = "2.27"
-val verCoroutines = "1.3.5"
+val verCoroutines = "1.3.7"
 val verRetrofit = "2.6.4"
 
 dependencies {
     testImplementation("junit:junit:4.12")
     androidTestImplementation("androidx.test:runner:1.2.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
-    testImplementation("org.mockito:mockito-core:3.2.4")
+    testImplementation("org.mockito:mockito-core:3.3.3")
     testImplementation("org.assertj:assertj-core:3.11.1")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.core:core-ktx:1.2.0")
+    implementation("androidx.core:core-ktx:1.3.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.19")

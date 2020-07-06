@@ -5,6 +5,7 @@ package com.ub.utils
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.text.SpannableString
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.TextPaint
@@ -131,12 +132,27 @@ class ResSpans(private val context: Context) : Iterable<Any> {
     fun color(@ColorRes id: Int) =
         spans.add(ForegroundColorSpan(ContextCompat.getColor(context, id)))
 
-    fun icon(@DrawableRes id: Int, size: Int) =
-        spans.add(ImageSpan(AppCompatResources.getDrawable(context, id)!!.apply {
-            setBounds(0, 0, size, size)
-        }))
+    fun colorInt(@ColorInt color: Int) =
+        spans.add(ForegroundColorSpan(color))
 
-    fun typeface(@FontRes family: Int) = spans.add(CustomTypefaceSpan("", ResourcesCompat.getFont(context, family)!!))
+    fun icon(@DrawableRes id: Int, size: Int, verticalAlignment: Int = DynamicDrawableSpan.ALIGN_BOTTOM) =
+        AppCompatResources.getDrawable(context, id)?.let { drawable ->
+            spans.add(
+                ImageSpan(
+                    drawable.apply {
+                        setBounds(0, 0, size, size)
+                    },
+                    verticalAlignment
+                )
+            )
+        } ?: false
+
+    fun icon(icon: Drawable, verticalAlignment: Int = DynamicDrawableSpan.ALIGN_BOTTOM) =
+        spans.add(ImageSpan(icon, verticalAlignment))
+
+    fun typeface(@FontRes family: Int) = ResourcesCompat.getFont(context, family)?.let { font ->
+        spans.add(CustomTypefaceSpan("", font))
+    } ?: false
     fun typeface(typeface: Typeface) = spans.add(CustomTypefaceSpan("", typeface))
 
     fun click(action: () -> Unit) = spans.add(clickableSpan(action))

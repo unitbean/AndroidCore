@@ -1,11 +1,11 @@
 buildscript {
-    val kotlinVersion: String by extra { "1.3.71" }
+    val kotlinVersion: String by extra { "1.3.72" }
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:3.6.1")
+        classpath("com.android.tools.build:gradle:4.0.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
