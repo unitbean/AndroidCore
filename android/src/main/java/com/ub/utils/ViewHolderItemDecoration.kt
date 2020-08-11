@@ -79,7 +79,7 @@ interface ItemDecoratable {
             viewHolder.itemView.bottom + height + viewHolder.itemView.translationY.roundToInt()
         drawable.setBounds(
             0 + leftPadding,
-            viewHolder.itemView.bottom,
+            viewHolder.itemView.bottom + viewHolder.itemView.translationY.roundToInt(),
             width - rightPadding,
             bottom
         )
@@ -94,12 +94,12 @@ interface ItemDecoratable {
         height: Int = drawable.intrinsicHeight
     ) {
         val topOffset =
-            viewHolder.itemView.top - height - viewHolder.itemView.translationY.roundToInt()
+            viewHolder.itemView.top - height + viewHolder.itemView.translationY.roundToInt()
         drawable.setBounds(
             0 + leftPadding,
             topOffset,
             width - rightPadding,
-            viewHolder.itemView.top
+            viewHolder.itemView.top + viewHolder.itemView.translationY.roundToInt()
         )
         drawable.draw(this)
     }
