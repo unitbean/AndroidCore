@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion(29)
+    compileSdkVersion(30)
     defaultConfig {
         applicationId = "com.ub.utils"
         minSdkVersion(16)
-        targetSdkVersion(29)
+        targetSdkVersion(30)
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -24,18 +24,18 @@ android {
 }
 
 val verMoxy = "2.1.2"
-val verDagger = "2.28.3"
+val verDagger = "2.29.1"
 val verRetrofit = "2.6.4"
-val verCoroutines = "1.3.8"
+val verCoroutines = "1.3.9"
 
 dependencies {
     implementation(project(":android"))
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     // testing
-    testImplementation("junit:junit:4.13")
-    androidTestImplementation("androidx.test:runner:1.2.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+    testImplementation("junit:junit:4.13.1")
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 
     // kapts
     kapt("com.github.moxy-community:moxy-compiler:$verMoxy")
@@ -46,9 +46,9 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("com.google.android.material:material:1.2.0")
+    implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.2")
 
     // moxy
     implementation("com.github.moxy-community:moxy:$verMoxy")
@@ -66,7 +66,7 @@ dependencies {
 
     // rx android
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.19")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.20")
 
     // dagger 2
     implementation("com.google.dagger:dagger:$verDagger")

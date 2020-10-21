@@ -14,7 +14,7 @@ extra.apply {
 
     set("publishedGroupId", "com.unitbean.core")
     set("artifact", "android")
-    set("libraryVersion", "1.7.0")
+    set("libraryVersion", "1.7.1")
 
     set("libraryDescription", "Boilerplate Android code for UnitBean developers")
     set("siteUrl", "https://github.com/unitbean/androidcore")
@@ -32,11 +32,11 @@ repositories {
 }
 
 android {
-    compileSdkVersion(29)
+    compileSdkVersion(30)
 
     defaultConfig {
         minSdkVersion(16)
-        targetSdkVersion(29)
+        targetSdkVersion(30)
         versionCode = 1
         versionName = extra.get("libraryVersion") as String
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -61,24 +61,24 @@ android {
 
 val verMoxy = "2.1.2"
 val verDagger = "2.27"
-val verCoroutines = "1.3.8"
+val verCoroutines = "1.3.9"
 val verRetrofit = "2.6.4"
 
 dependencies {
-    testImplementation("junit:junit:4.12")
-    androidTestImplementation("androidx.test:runner:1.2.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
-    testImplementation("org.mockito:mockito-core:3.3.3")
-    testImplementation("org.assertj:assertj-core:3.11.1")
+    testImplementation("junit:junit:4.13.1")
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    testImplementation("org.mockito:mockito-core:3.5.15")
+    testImplementation("org.assertj:assertj-core:3.17.2")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.core:core-ktx:1.3.1")
+    implementation("androidx.core:core-ktx:1.3.2")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.19")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.20")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$verCoroutines")
 }
 
