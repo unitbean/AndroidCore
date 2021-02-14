@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.flow
  * Умеет работать с [Build.VERSION_CODES.LOLLIPOP] и выше через акутальное API [networkCallback],
  * и по обратной совместимости на [Build.VERSION_CODES.KITKAT] и ниже через устаревший [networkReceiver]
  *
- * Основной метод [startListener] возвращает [Flow] со значениями [State].
+ * Основной метод [startListener] возвращает [Flow] со значениями [NetworkState].
  * Значения могут дублироваться, на [Flow] желательно применить [kotlinx.coroutines.flow.distinctUntilChanged],
  * но пока он в статусе [kotlinx.coroutines.FlowPreview], то смотрите сами
  *
@@ -58,7 +58,7 @@ class CNetwork(
             @SuppressLint("MissingPermission")
             override fun onReceive(context: Context, intent: Intent) {
                 networkStateChannel.offer(
-                    if (manager?.activeNetworkInfo?.isAvailable == true) State.ACTIVE else State.DISABLE
+                    if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
                 )
             }
         }
@@ -67,37 +67,37 @@ class CNetwork(
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
     }
     private val networkStateChannel: Channel<String> by lazy {
-        Channel<String>()
+        Channel()
     }
     private val networkCallback: ConnectivityManager.NetworkCallback by lazy {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                networkStateChannel.offer(State.ACTIVE)
+                networkStateChannel.offer(NetworkState.ACTIVE)
             }
 
             override fun onLost(network: Network) {
-                networkStateChannel.offer(State.DISABLE)
+                networkStateChannel.offer(NetworkState.DISABLE)
             }
 
             override fun onUnavailable() {
-                networkStateChannel.offer(State.DISABLE)
+                networkStateChannel.offer(NetworkState.DISABLE)
             }
 
             override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
                 networkStateChannel.offer(
                     when {
-                        networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> State.ACTIVE
-                        networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> State.CAPTIVE
-                        networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED) -> State.ACTIVE
-                        else -> State.DISABLE
+                        networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> NetworkState.ACTIVE
+                        networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
+                        networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED) -> NetworkState.ACTIVE
+                        else -> NetworkState.DISABLE
                     }
                 )
             }
         }
     }
 
-    @State
+    @NetworkState
     @Suppress("DEPRECATION")
     fun startListener(): Flow<String> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -123,9 +123,9 @@ class CNetwork(
         }
     }
 
-    @StringDef(State.ACTIVE, State.DISABLE, State.CAPTIVE)
+    @StringDef(NetworkState.ACTIVE, NetworkState.DISABLE, NetworkState.CAPTIVE)
     @Retention(AnnotationRetention.SOURCE)
-    annotation class State {
+    annotation class NetworkState {
         companion object {
             const val ACTIVE = "ACTIVE"
             const val DISABLE = "DISABLE"

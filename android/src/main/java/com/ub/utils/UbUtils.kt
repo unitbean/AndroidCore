@@ -289,7 +289,12 @@ suspend inline fun <T> OkHttpClient.download(url: String, crossinline objectMapp
         call.enqueue(object : Callback {
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!continuation.isCompleted) {
-                    continuation.resume(objectMapper.invoke(response.body()?.byteStream()))
+                    try {
+                        val result = objectMapper.invoke(response.body()?.byteStream())
+                        continuation.resume(result)
+                    } catch (e: Exception) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
 

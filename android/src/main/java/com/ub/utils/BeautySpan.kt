@@ -33,7 +33,7 @@ class SpannableStringCreator(private val context: Context) {
 
     fun appendSpace(newText: CharSequence, spans: (ResSpans.() -> Unit)? = null) = append(" ").append(newText, spans)
 
-    fun appendLnNotBlank(newText: CharSequence, spans: (ResSpans.() -> Unit)? = null) = applyIf({ !newText.isBlank() }) { appendLn(newText, spans) }
+    fun appendLnNotBlank(newText: CharSequence, spans: (ResSpans.() -> Unit)? = null) = applyIf({ newText.isNotBlank() }) { appendLn(newText, spans) }
 
     fun appendLn(newText: CharSequence, spans: (ResSpans.() -> Unit)? = null) = append("\n").append(newText, spans)
 

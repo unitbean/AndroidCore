@@ -6,12 +6,14 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import androidx.core.app.NotificationCompat
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.ub.utils.*
-import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.MvpView
 import moxy.ktx.moxyPresenter
@@ -98,24 +100,24 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun showImage(image: Bitmap) {
-        iv_image.setImageBitmap(image)
+        findViewById<ImageView>(R.id.iv_image).setImageBitmap(image)
     }
 
     override fun onConnectivityChange(state: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = when (state) {
-                CNetwork.State.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimaryDark)
-                CNetwork.State.DISABLE -> Color.RED
-                CNetwork.State.CAPTIVE -> Color.GREEN
+                CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimaryDark)
+                CNetwork.NetworkState.DISABLE -> Color.RED
+                CNetwork.NetworkState.CAPTIVE -> Color.GREEN
                 else -> Color.YELLOW
             }
         }
         supportActionBar?.setBackgroundDrawable(
             GradientDrawable().apply {
                 setColor(when (state) {
-                    CNetwork.State.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
-                    CNetwork.State.DISABLE -> Color.RED
-                    CNetwork.State.CAPTIVE -> Color.GREEN
+                    CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
+                    CNetwork.NetworkState.DISABLE -> Color.RED
+                    CNetwork.NetworkState.CAPTIVE -> Color.GREEN
                     else -> Color.YELLOW
                 })
             }
@@ -127,12 +129,14 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     fun hideTest(v : View) {
-        if (tv_text.visibility == View.GONE) {
-            tv_text.visible
-            btn_text_action.text = "HIDE TEXT"
+        val tvText = findViewById<TextView>(R.id.tv_text)
+        val btnTextAction = findViewById<Button>(R.id.btn_text_action)
+        if (tvText.visibility == View.GONE) {
+            tvText.visible
+            btnTextAction.text = "HIDE TEXT"
         } else {
-            tv_text.gone
-            btn_text_action.text = "SHOW TEXT"
+            tvText.gone
+            btnTextAction.text = "SHOW TEXT"
         }
     }
 }

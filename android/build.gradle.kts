@@ -1,34 +1,30 @@
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 
-plugins {
-    id("com.jfrog.bintray")
-    id("com.github.dcendents.android-maven")
-    id("com.android.library")
-    kotlin("android")
+buildscript {
+    repositories {
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
+    }
+    dependencies {
+        classpath("com.vanniktech:gradle-maven-publish-plugin:0.14.1")
+    }
 }
 
-extra.apply {
-    set("bintrayRepo", "AndroidCore")
-    set("bintrayName", "com.unitbean.core")
-    set("libraryName", "android")
+apply(plugin = "com.vanniktech.maven.publish")
 
-    set("publishedGroupId", "com.unitbean.core")
-    set("artifact", "android")
-    set("libraryVersion", "1.7.1")
-
-    set("libraryDescription", "Boilerplate Android code for UnitBean developers")
-    set("siteUrl", "https://github.com/unitbean/androidcore")
-    set("gitUrl", "https://github.com/unitbean/androidcore.git")
-    set("developerId", "UnitBean")
-    set("developerName", "Android developer")
-    set("developerEmail", "info@unitbean.com")
-    set("licenseName", "The Apache Software License, Version 2.0")
-    set("licenseUrl", "http://www.apache.org/licenses/LICENSE-2.0.txt")
-    set("allLicenses", arrayOf("Apache-2.0"))
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.dokka")
+    kotlin("android")
 }
 
 repositories {
     mavenCentral()
+}
+
+tasks.dokkaJavadoc.configure {
+    outputDirectory.set(buildDir.resolve("javadoc"))
 }
 
 android {
@@ -38,8 +34,9 @@ android {
         minSdkVersion(16)
         targetSdkVersion(30)
         versionCode = 1
-        versionName = extra.get("libraryVersion") as String
+        versionName = "1.8.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -57,19 +54,23 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+
+    buildFeatures {
+        buildConfig = false
+    }
 }
 
 val verMoxy = "2.1.2"
 val verDagger = "2.27"
-val verCoroutines = "1.3.9"
+val verCoroutines = "1.4.2"
 val verRetrofit = "2.6.4"
 
 dependencies {
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    testImplementation("org.mockito:mockito-core:3.5.15")
-    testImplementation("org.assertj:assertj-core:3.17.2")
+    testImplementation("org.mockito:mockito-core:3.7.7")
+    testImplementation("org.assertj:assertj-core:3.19.0")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
@@ -78,24 +79,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.3.2")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.20")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$verCoroutines")
-}
-
-/**
- * Создаёт JAR-файл библиотеки в ubutils/libs/jar
- */
-task<Copy>("createJar") {
-    from("$buildDir/intermediates/intermediate-jars/release/")
-    into("libs/jar")
-    include("classes.jar")
-    rename("classes.jar", "UbUtils.jar")
-    exclude("**/BuildConfig.class")
-    exclude("**/R.class")
-    exclude("**/R$*.class")
-}
-
-if (project.rootProject.file("local.properties").exists()) {
-    apply("https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle")
-    apply("https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle")
 }
