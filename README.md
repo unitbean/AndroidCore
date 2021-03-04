@@ -68,12 +68,19 @@ isGpsIsEnabled(context: Context)
 
 ## Как подключить
 
-Библиотека опубликована в JCenter и доступна напрямую.
-Добавить в локальный модуль следующее
+Артефакт опубликован в Maven Central. Для его поддержки нужно убедиться, что он подключен как источник:
+
+```gradle
+repositories {
+    mavenCentral()
+}
+```
+
+И после этого добавить строку в `.gradle` файл:
 
 ```gradle
 dependencies {
-    implementation 'com.unitbean.core:android:$latest_version'
+    implementation 'io.github.unitbean.core:android:$latest_version'
 }
 ```
 
@@ -85,7 +92,7 @@ dependencies {
 
 * Виктор Лиханов
 
-Yandex: [volixanov@unitbean.com](volixanov@unitbean.com)
+Yandex: [volixanov@unitbean.com](volixanov@unitbean.io)
 
 ## Соавторы
 
