@@ -80,7 +80,7 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'io.github.unitbean.core:android:$latest_version'
+    implementation 'io.github.unitbean:androidcore:$latest_version'
 }
 ```
 
