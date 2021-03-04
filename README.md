@@ -1,6 +1,6 @@
 # androidcore
 
-[ ![Download](https://api.bintray.com/packages/unitbean/AndroidCore/com.unitbean.core/images/download.svg) ](https://bintray.com/unitbean/AndroidCore/com.unitbean.core/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.unitbean/androidcore/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.unitbean/androidcore)
 
 Библиотека включает в себя базовый набор средств и инструментов для Android-разработчика
 
