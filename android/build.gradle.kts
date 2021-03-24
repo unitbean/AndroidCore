@@ -60,9 +60,9 @@ android {
     }
 }
 
-val verMoxy = "2.1.2"
+val verMoxy = "2.2.1"
 val verDagger = "2.27"
-val verCoroutines = "1.4.2"
+val verCoroutines = "1.4.3"
 val verRetrofit = "2.6.4"
 
 dependencies {
@@ -71,6 +71,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     testImplementation("org.mockito:mockito-core:3.7.7")
     testImplementation("org.assertj:assertj-core:3.19.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 

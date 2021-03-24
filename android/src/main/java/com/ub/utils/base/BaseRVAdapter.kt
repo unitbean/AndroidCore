@@ -9,6 +9,6 @@ abstract class BaseRVAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter
     var listener: BaseClickListener? = null
 }
 
-interface BaseClickListener {
+fun interface BaseClickListener {
     fun onClick(view: View, position: Int)
 }

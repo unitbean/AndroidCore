@@ -309,3 +309,47 @@ suspend inline fun <T> OkHttpClient.download(url: String, crossinline objectMapp
             call.cancel()
         }
     }
+
+/**
+ * Wrapper of token-update logic.
+ * In case of receiving [HttpException] with code 401 during execution of [action],
+ * this will try to refresh access-token with [updateToken]. If in process of updating access-token you also will receive [HttpException] with code 403,
+ * you must execute the [logout] action to de-authenticate user
+ *
+ * In cases of another types of error, they will be transmitted directly to callsite of this function, and you will be should handled they manually
+ *
+ * For resolving concurrency problem with parallel requests there are a one of possible decisions:
+ * you should use shared [kotlinx.coroutines.Deferred] instance logic for parameter [updateToken]
+ * and desirable for [afterUpdate] for a consistent record of changed values. This shared instance should be used by all parallel request,
+ * and after executing of all logic this instance should be cleared with setting value to null
+ *
+ * @param updateToken - action with updating access-token instance. This returns value [U], that will be transmitted to arguments of [afterUpdate] function
+ * @param refreshToken - string value of refresh-token to update access-token
+ * @param afterUpdate - action that must be done after updating access-token. In most cases that can be include saving new value of access-token
+ * @param logout - action that must be execute on failure of updating access-token
+ * @param action - action that desired to execute with update access-token wrapped logic. This also return result value of this function [T]
+ */
+suspend inline fun <T, U> retryWithRefreshToken(
+    crossinline updateToken: suspend (String) -> U,
+    refreshToken: String,
+    crossinline afterUpdate: suspend (U) -> Unit,
+    crossinline logout: suspend () -> Unit,
+    crossinline action: suspend () -> T
+): T {
+    return try {
+        action.invoke()
+    } catch (e: Exception) {
+        if (e is HttpException && e.code() == 401) {
+            val tokenUpdateResponse = try {
+                updateToken.invoke(refreshToken)
+            } catch (e: Exception) {
+                if (e is HttpException && e.code() == 403) {
+                    logout.invoke()
+                }
+                throw e
+            }
+            afterUpdate.invoke(tokenUpdateResponse)
+            action.invoke()
+        } else throw e
+    }
+}

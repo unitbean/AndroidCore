@@ -24,7 +24,7 @@ constructor(differ: DiffUtil.ItemCallback<D> = DiffCallback()) : ListAdapter<D, 
         override fun areItemsTheSame(oldItem: D, newItem: D): Boolean = oldItem.getItemId() == newItem.getItemId()
     }
 
-    interface BaseListClickListener<D> {
+    fun interface BaseListClickListener<D> {
         fun onClick(view: View, item: D, position: Int)
     }
 }
