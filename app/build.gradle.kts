@@ -34,7 +34,7 @@ android {
 }
 
 val verMoxy = "2.2.1"
-val verDagger = "2.33"
+val verDagger = "2.34"
 val verRetrofit = "2.6.4"
 val verCoroutines = "1.4.3"
 
@@ -54,7 +54,7 @@ dependencies {
     // android x
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")

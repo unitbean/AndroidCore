@@ -3,21 +3,22 @@ package com.ub.utils
 import androidx.annotation.Keep
 import android.util.Log
 
-class LogUtils {
+class LogUtils private constructor() {
 
     companion object {
-        private var consumerThrowable : ((throwable : Throwable) -> Unit)? = null
-        private var consumerString : ((error : String) -> Unit)? = null
-        private var isDebug = true
+        private var consumerThrowable : ConsumerThrowable? = null
+        private var consumerString : ConsumerString? = null
+        private var isEnableExternalLogging = false
+        private var isEnableInternalLogging = true
         private var defaultMessage = "Undefined error"
 
         @JvmStatic
-        fun setThrowableLogger(consumer: (throwable : Throwable) -> Unit) {
+        fun setThrowableLogger(consumer: ConsumerThrowable?) {
             this.consumerThrowable = consumer
         }
 
         @JvmStatic
-        fun setMessageLogger(consumer: (message : String) -> Unit) {
+        fun setMessageLogger(consumer: ConsumerString?) {
             this.consumerString = consumer
         }
 
@@ -27,34 +28,37 @@ class LogUtils {
         }
 
         @JvmStatic
-        fun init(isDebug: Boolean) {
-            this.isDebug = isDebug
+        fun configure(isEnableExternalLogging: Boolean = false, isEnableInternalLogging: Boolean = true) {
+            this.isEnableExternalLogging = isEnableExternalLogging
+            this.isEnableInternalLogging = isEnableInternalLogging
         }
 
         @Keep
         @JvmStatic
         fun e(tag: String, message: String?, throwable: Throwable) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.e(tag, message ?: defaultMessage, throwable)
-            } else {
-                consumerThrowable?.invoke(throwable)
+            }
+            if (isEnableExternalLogging) {
+                consumerThrowable?.consume(tag, throwable)
             }
         }
 
         @Keep
         @JvmStatic
         fun e(tag: String, message: String?) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.e(tag, message ?: defaultMessage)
-            } else {
-                consumerString?.invoke(message ?: defaultMessage)
+            }
+            if (isEnableExternalLogging) {
+                consumerString?.consume(message ?: defaultMessage)
             }
         }
 
         @Keep
         @JvmStatic
         fun i(tag: String, message: String?) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.i(tag, message ?: defaultMessage)
             }
         }
@@ -62,7 +66,7 @@ class LogUtils {
         @Keep
         @JvmStatic
         fun d(tag: String, message: String?) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.d(tag, message ?: defaultMessage)
             }
         }
@@ -70,31 +74,42 @@ class LogUtils {
         @Keep
         @JvmStatic
         fun w(tag: String, message: String?) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.w(tag, message ?: defaultMessage)
-            } else {
-                consumerString?.invoke(message ?: defaultMessage)
+            }
+            if (isEnableExternalLogging) {
+                consumerString?.consume(message ?: defaultMessage)
             }
         }
 
         @Keep
         @JvmStatic
         fun w(tag: String, throwable: Throwable) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.w(tag, throwable)
-            } else {
-                consumerThrowable?.invoke(throwable)
+            }
+            if (isEnableExternalLogging) {
+                consumerThrowable?.consume(tag, throwable)
             }
         }
 
         @Keep
         @JvmStatic
         fun v(tag: String, message: String?) {
-            if (isDebug) {
+            if (isEnableInternalLogging) {
                 Log.v(tag, message ?: defaultMessage)
-            } else {
-                consumerString?.invoke(message ?: defaultMessage)
+            }
+            if (isEnableExternalLogging) {
+                consumerString?.consume(message ?: defaultMessage)
             }
         }
+    }
+
+    fun interface ConsumerThrowable {
+        fun consume(tag: String, throwable: Throwable)
+    }
+
+    fun interface ConsumerString {
+        fun consume(log: String)
     }
 }

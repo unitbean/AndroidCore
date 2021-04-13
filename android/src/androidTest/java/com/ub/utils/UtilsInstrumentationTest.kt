@@ -2,7 +2,6 @@ package com.ub.utils
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
-import com.ub.ubutils.R
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 
@@ -19,27 +18,22 @@ class UtilsInstrumentationTest {
 
     @Before
     fun prepare() {
-        LogUtils.init(true)
+        LogUtils.configure(true)
         UbUtils.init(InstrumentationRegistry.getTargetContext())
     }
 
     @Test
-    fun testUbUtils() {
-        assertEquals("UbUtils", UbUtils.getString(R.string.app_name))
-    }
-
-    @Test
     fun testLogUtils() {
-        LogUtils.init(false)
-        LogUtils.setThrowableLogger {
-            assertTrue(it is HttpException)
+        LogUtils.configure(false)
+        LogUtils.setThrowableLogger { _, throwable ->
+            assertTrue(throwable is HttpException)
         }
         LogUtils.e("TestLogUtils", "http", HttpException(Response.error<String>(401, ResponseBody.create(MediaType.parse("plain/text"), "test error"))))
     }
 
     @Test
     fun openMarket() {
-        assertTrue(com.ub.utils.openMarket(InstrumentationRegistry.getTargetContext()))
+        assertTrue(openMarket(InstrumentationRegistry.getTargetContext()))
     }
 
     @Test
@@ -56,17 +50,5 @@ class UtilsInstrumentationTest {
         assertFalse(isValidEmail("unitbean@gmail."))
         assertFalse(isValidEmail("unitbean2gmail.com"))
         assertTrue(isValidEmail("u@g.com"))
-    }
-
-    @Test
-    fun createNotification() {
-        val notification = UbNotify.Builder(InstrumentationRegistry.getTargetContext())
-            .fromLocal(android.R.drawable.ic_menu_add, "Title", "Message")
-            .setParams {
-                this.color = Color.WHITE
-            }
-            .build()
-
-        assertNotNull(notification)
     }
 }
