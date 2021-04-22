@@ -11,20 +11,19 @@ import android.net.*
 import android.net.NetworkCapabilities.*
 import android.net.wifi.WifiManager
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringDef
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * Класс, инкаспулирующий в себе получение изменений состояния активной сети
- * Умеет работать с [Build.VERSION_CODES.LOLLIPOP] и выше через акутальное API [networkCallback],
- * и по обратной совместимости на [Build.VERSION_CODES.KITKAT] и ниже через устаревший [networkReceiver]
+ * Умеет работать с [Build.VERSION_CODES.LOLLIPOP] и выше через акутальное API [ConnectivityManager.NetworkCallback],
+ * и по обратной совместимости на [Build.VERSION_CODES.KITKAT] и ниже через устаревший [BroadcastReceiver]
  *
  * Основной метод [startListener] возвращает [Flow] со значениями [NetworkState].
- * Значения могут дублироваться, на [Flow] желательно применить [kotlinx.coroutines.flow.distinctUntilChanged],
- * но пока он в статусе [kotlinx.coroutines.FlowPreview], то смотрите сами
+ * Значения могут дублироваться, на [Flow] желательно применить [kotlinx.coroutines.flow.distinctUntilChanged]
  *
  * Сценарии, которые были учтены в работе:
  * 1. [TRANSPORT_WIFI] - соединение установлено и может передавать данные
@@ -41,8 +40,7 @@ import kotlinx.coroutines.flow.flow
  * в [NetworkCapabilities] будет среди прочего [NetworkCapabilities.NET_CAPABILITY_VALIDATED].
  * На [Build.VERSION_CODES.KITKAT] работать тоже, скорее всего, будет из-за топорности API, там и ломаться нечему
  *
- * При завершении работы с классом важно закрыть с ним работу через [stopListener].
- * Иначе возможны утечки памяти и прочая Сотона, вплоть до крашей
+ * При завершении работы с классом происходит автоматическое закрытие слушателя в момент закрытия потока.
  *
  * Известные проблемы:
  * 1. На некоторых устройствах (Asus API 21) не срабатывает [ConnectivityManager.NetworkCallback.onCapabilitiesChanged],
@@ -52,74 +50,69 @@ import kotlinx.coroutines.flow.flow
 class CNetwork(
     private val context: Context
 ) {
-    private val networkReceiver: BroadcastReceiver by lazy {
-        object : BroadcastReceiver() {
-            @Suppress("DEPRECATION")
-            @SuppressLint("MissingPermission")
-            override fun onReceive(context: Context, intent: Intent) {
-                networkStateChannel.offer(
-                    if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
-                )
-            }
-        }
-    }
     private val manager: ConnectivityManager? by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
     }
-    private val networkStateChannel: Channel<String> by lazy {
-        Channel()
-    }
-    private val networkCallback: ConnectivityManager.NetworkCallback by lazy {
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                networkStateChannel.offer(NetworkState.ACTIVE)
-            }
 
-            override fun onLost(network: Network) {
-                networkStateChannel.offer(NetworkState.DISABLE)
-            }
-
-            override fun onUnavailable() {
-                networkStateChannel.offer(NetworkState.DISABLE)
-            }
-
-            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                networkStateChannel.offer(
-                    when {
-                        networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> NetworkState.ACTIVE
-                        networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
-                        networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED) -> NetworkState.ACTIVE
-                        else -> NetworkState.DISABLE
-                    }
-                )
-            }
-        }
-    }
-
+    @ExperimentalCoroutinesApi
     @NetworkState
     @Suppress("DEPRECATION")
     fun startListener(): Flow<String> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val request = NetworkRequest.Builder().build()
-            manager?.requestNetwork(request, networkCallback)
-        } else {
-            val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
-            context.registerReceiver(networkReceiver, filter)
-        }
-        return flow {
-            for (networkState in networkStateChannel) {
-                emit(networkState)
-            }
-        }
-    }
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            callbackFlow {
+                val callback = object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network) {
+                        offer(NetworkState.ACTIVE)
+                    }
 
-    fun stopListener() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            manager?.unregisterNetworkCallback(networkCallback)
+                    override fun onLost(network: Network) {
+                        offer(NetworkState.DISABLE)
+                    }
+
+                    override fun onUnavailable() {
+                        offer(NetworkState.DISABLE)
+                    }
+
+                    override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                        offer(
+                            when {
+                                networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> NetworkState.ACTIVE
+                                networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
+                                networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED) -> NetworkState.ACTIVE
+                                else -> NetworkState.DISABLE
+                            }
+                        )
+                    }
+                }
+                val request = NetworkRequest.Builder().build()
+                manager?.requestNetwork(request, callback)
+
+                awaitClose {
+                    manager?.unregisterNetworkCallback(callback)
+                }
+            }
         } else {
-            context.unregisterReceiver(networkReceiver)
+            callbackFlow {
+                val networkReceiver: BroadcastReceiver by lazy {
+                    object : BroadcastReceiver() {
+                        @Suppress("DEPRECATION")
+                        @SuppressLint("MissingPermission")
+                        override fun onReceive(context: Context, intent: Intent) {
+                            offer(
+                                if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
+                            )
+                        }
+                    }
+                }
+
+                val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+                filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
+                context.registerReceiver(networkReceiver, filter)
+
+                awaitClose {
+                    context.unregisterReceiver(networkReceiver)
+                }
+            }
         }
     }
 
