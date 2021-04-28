@@ -51,7 +51,7 @@ class ViewHolderItemDecoration : RecyclerView.ItemDecoration() {
     ) {
         val viewHolder = parent.findContainingViewHolder(view)
         (viewHolder as? ItemDecoratable)?.let { decoratable ->
-            val rect = decoratable.onGetOffsets(viewHolder.adapterPosition)
+            val rect = decoratable.onGetOffsets(viewHolder.absoluteAdapterPosition)
             outRect.set(rect)
         }
     }
@@ -59,7 +59,7 @@ class ViewHolderItemDecoration : RecyclerView.ItemDecoration() {
     override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         for (i in 0 until parent.childCount) {
             val viewHolder = parent.findContainingViewHolder(parent.getChildAt(i))
-            (viewHolder as? ItemDecoratable)?.onItemDecorate(c, viewHolder.adapterPosition)
+            (viewHolder as? ItemDecoratable)?.onItemDecorate(c, viewHolder.absoluteAdapterPosition)
         }
     }
 }

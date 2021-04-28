@@ -34,7 +34,7 @@ android {
 }
 
 val verMoxy = "2.2.1"
-val verDagger = "2.34.1"
+val verDagger = "2.35.1"
 val verRetrofit = "2.9.0"
 val verCoroutines = "1.4.3"
 

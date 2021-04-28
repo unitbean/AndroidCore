@@ -12,7 +12,6 @@ import android.net.NetworkCapabilities.*
 import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.annotation.StringDef
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -54,7 +53,6 @@ class CNetwork(
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
     }
 
-    @ExperimentalCoroutinesApi
     @NetworkState
     @Suppress("DEPRECATION")
     fun startListener(): Flow<String> {
