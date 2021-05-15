@@ -189,7 +189,8 @@ fun getIPAddress(useIPv4: Boolean): String {
                     } else {
                         if (!isIPv4) {
                             val delim = sAddr.indexOf('%') // drop ip6 zone suffix
-                            return if (delim < 0) sAddr.toUpperCase(Locale.getDefault()) else sAddr.substring(0, delim).toUpperCase(Locale.getDefault())
+                            return if (delim < 0) sAddr.uppercase(Locale.getDefault()) else sAddr.substring(0, delim)
+                                .uppercase(Locale.getDefault())
                         }
                     }
                 }
@@ -247,12 +248,12 @@ fun openSoftKeyboard(context: Context, view: View) {
 fun openMarket(context: Context) : Boolean {
     val uri = Uri.parse("market://details?id=" + context.packageName)
     val market = Intent(Intent.ACTION_VIEW, uri)
-    return if (market.resolveActivity(context.packageManager) != null) {
+    return if (context.packageManager.resolveActivity(market, 0) != null) {
         context.startActivity(market)
         true
     } else {
         val browser = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}"))
-        if (browser.resolveActivity(context.packageManager) != null) {
+        if (context.packageManager.resolveActivity(browser, 0) != null) {
             context.startActivity(browser)
             true
         } else {

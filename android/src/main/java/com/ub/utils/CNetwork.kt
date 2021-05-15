@@ -60,19 +60,19 @@ class CNetwork(
             callbackFlow {
                 val callback = object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        offer(NetworkState.ACTIVE)
+                        trySend(NetworkState.ACTIVE)
                     }
 
                     override fun onLost(network: Network) {
-                        offer(NetworkState.DISABLE)
+                        trySend(NetworkState.DISABLE)
                     }
 
                     override fun onUnavailable() {
-                        offer(NetworkState.DISABLE)
+                        trySend(NetworkState.DISABLE)
                     }
 
                     override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-                        offer(
+                        trySend(
                             when {
                                 networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> NetworkState.ACTIVE
                                 networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
@@ -96,7 +96,7 @@ class CNetwork(
                         @Suppress("DEPRECATION")
                         @SuppressLint("MissingPermission")
                         override fun onReceive(context: Context, intent: Intent) {
-                            offer(
+                            trySend(
                                 if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
                             )
                         }
