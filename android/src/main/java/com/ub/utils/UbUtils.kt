@@ -80,6 +80,9 @@ object UbUtils {
      * @return высота статус-бара в пикселях
      */
     @JvmStatic
+    @Deprecated(
+        message = "This function is not recommended to use. Please use WindowInsets instead of this"
+    )
     fun getStatusBarHeight(): Int {
         var result = 0
         val resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android")

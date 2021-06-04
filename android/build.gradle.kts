@@ -61,7 +61,7 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.35.1"
+val verDagger = "2.36"
 val verCoroutines = "1.5.0"
 val verRetrofit = "2.9.0"
 
@@ -69,15 +69,15 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    testImplementation("org.mockito:mockito-core:3.9.0")
+    testImplementation("org.mockito:mockito-core:3.11.0")
     testImplementation("org.assertj:assertj-core:3.19.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.2.0")
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.core:core-ktx:1.3.2")
+    implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation("androidx.core:core-ktx:1.5.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")

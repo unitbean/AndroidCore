@@ -34,7 +34,7 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.35.1"
+val verDagger = "2.36"
 val verRetrofit = "2.9.0"
 val verCoroutines = "1.5.0"
 
@@ -52,7 +52,7 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:$verDagger")
 
     // android x
-    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.cardview:cardview:1.0.0")
