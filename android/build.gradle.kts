@@ -61,7 +61,7 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.36"
+val verDagger = "2.37"
 val verCoroutines = "1.5.0"
 val verRetrofit = "2.9.0"
 
@@ -75,7 +75,7 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
-    implementation("androidx.recyclerview:recyclerview:1.2.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.appcompat:appcompat:1.3.0")
     implementation("androidx.core:core-ktx:1.5.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")

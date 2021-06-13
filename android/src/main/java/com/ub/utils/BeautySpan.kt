@@ -155,17 +155,22 @@ class ResSpans(private val context: Context) : Iterable<Any> {
     } ?: false
     fun typeface(typeface: Typeface) = spans.add(CustomTypefaceSpan("", typeface))
 
-    fun click(action: () -> Unit) = spans.add(clickableSpan(action))
+    fun click(@ColorInt linkColor: Int? = null, isNeedUnderline: Boolean = false, action: () -> Unit) = spans.add(
+        clickableSpan(linkColor, isNeedUnderline, action)
+    )
 
     fun custom(span: Any) = spans.add(span)
 }
 
-fun clickableSpan(action: () -> Unit) = object : ClickableSpan() {
+fun clickableSpan(@ColorInt linkColor: Int?, isNeedUnderline: Boolean, action: () -> Unit) = object : ClickableSpan() {
     override fun onClick(view: View) = action()
 
     override fun updateDrawState(ds: TextPaint) {
         super.updateDrawState(ds)
-        ds.isUnderlineText = false
+        linkColor?.let { color ->
+            ds.linkColor = color
+        }
+        ds.isUnderlineText = isNeedUnderline
     }
 }
 
