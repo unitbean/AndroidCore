@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -57,23 +58,31 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     override fun done() {
         AlertDialog.Builder(this)
             .setMessage(spannableBuilder {
-                append("20sp text") {
+                append("20sp text with underline and strikethrough")
+                partialSpan("20sp text") {
                     size(20F)
                 }
-                appendSpace("with")
-                appendSpace("underline") {
+                partialSpan("underline") {
                     underline()
                 }
-                appendSpace("and")
-                appendSpace("strikethrough") {
+                partialSpan("strikethrough") {
                     strikethrough()
                 }
-                appendLn("Bold text") {
+                appendLn("Bold text blue yeti")
+                partialSpan("Bold text") {
                     typeface(Typeface.DEFAULT_BOLD)
                 }
-                appendSpace("blue yeti") {
+                partialSpan("blue yeti") {
                     color(android.R.color.holo_blue_light)
                     size(10F)
+                }
+                appendLn("Partial clickable clickable span")
+                partialSpan("clickable", searchFromIndex = 80) {
+                    click(
+                        isNeedUnderline = true
+                    ) {
+                        Toast.makeText(this@MainActivity, "Click on span", Toast.LENGTH_LONG).show()
+                    }
                 }
             })
             .setPositiveButton(android.R.string.ok) { _, _ ->

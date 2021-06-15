@@ -17,6 +17,7 @@ import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import java.util.regex.Pattern
 
 fun Context.spannableBuilder(builder: (SpannableStringCreator.() -> Unit)): SpannableString {
     return SpannableStringCreator(this).apply {
@@ -59,6 +60,26 @@ class SpannableStringCreator(private val context: Context) {
             spanItem.value.forEach {
                 setSpan(it, range.first, range.last, SPAN_EXCLUSIVE_EXCLUSIVE)
             }
+        }
+    }
+
+    fun partialSpan(patternToSpan: Pattern, searchFromIndex: Int = 0, spans: ResSpans.() -> Unit) {
+        val fullString = concat(*parts.toTypedArray())
+        val matcher = patternToSpan.matcher(fullString)
+        val isMatchSuccess = matcher.find(searchFromIndex)
+        if (isMatchSuccess) {
+            val startIndexStringToSpan = matcher.start()
+            val endIndexStringToSpan = matcher.end()
+            spanMap[(startIndexStringToSpan..endIndexStringToSpan)] = ResSpans(context, spans).spans
+        }
+    }
+
+    fun partialSpan(stringToSpan: String, searchFromIndex: Int = 0, spans: ResSpans.() -> Unit) {
+        val fullString = concat(*parts.toTypedArray())
+        val startIndexStringToSpan = fullString.indexOf(stringToSpan, searchFromIndex)
+        val endIndexStringToSpan = startIndexStringToSpan + stringToSpan.length
+        if (startIndexStringToSpan != -1 && endIndexStringToSpan <= fullString.length) {
+            spanMap[(startIndexStringToSpan..endIndexStringToSpan)] = ResSpans(context, spans).spans
         }
     }
 }
@@ -155,21 +176,18 @@ class ResSpans(private val context: Context) : Iterable<Any> {
     } ?: false
     fun typeface(typeface: Typeface) = spans.add(CustomTypefaceSpan("", typeface))
 
-    fun click(@ColorInt linkColor: Int? = null, isNeedUnderline: Boolean = false, action: () -> Unit) = spans.add(
-        clickableSpan(linkColor, isNeedUnderline, action)
+    fun click(isNeedUnderline: Boolean = false, action: () -> Unit) = spans.add(
+        clickableSpan(isNeedUnderline, action)
     )
 
     fun custom(span: Any) = spans.add(span)
 }
 
-fun clickableSpan(@ColorInt linkColor: Int?, isNeedUnderline: Boolean, action: () -> Unit) = object : ClickableSpan() {
+fun clickableSpan(isNeedUnderline: Boolean, action: () -> Unit) = object : ClickableSpan() {
     override fun onClick(view: View) = action()
 
     override fun updateDrawState(ds: TextPaint) {
         super.updateDrawState(ds)
-        linkColor?.let { color ->
-            ds.linkColor = color
-        }
         ds.isUnderlineText = isNeedUnderline
     }
 }
