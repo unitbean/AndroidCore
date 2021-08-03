@@ -7,10 +7,6 @@ plugins {
     kotlin("android")
 }
 
-repositories {
-    mavenCentral()
-}
-
 tasks.dokkaJavadoc.configure {
     outputDirectory.set(buildDir.resolve("javadoc"))
 }
@@ -20,13 +16,10 @@ mavenPublish {
 }
 
 android {
-    compileSdkVersion(30)
-
+    compileSdk = 30
     defaultConfig {
-        minSdkVersion(16)
-        targetSdkVersion(30)
-        versionCode = 1
-        versionName = "1.8.0"
+        minSdk = 16
+        targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -53,23 +46,22 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.37"
-val verCoroutines = "1.5.0"
+val verCoroutines = "1.5.1"
 val verRetrofit = "2.9.0"
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test:runner:1.3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    testImplementation("org.mockito:mockito-core:3.11.1")
-    testImplementation("org.assertj:assertj-core:3.19.0")
+    androidTestImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    testImplementation("org.mockito:mockito-core:3.11.2")
+    testImplementation("org.assertj:assertj-core:3.20.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.appcompat:appcompat:1.3.0")
-    implementation("androidx.core:core-ktx:1.5.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("androidx.core:core-ktx:1.6.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
