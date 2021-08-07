@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 import android.content.res.Resources
+import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -262,6 +263,27 @@ fun openMarket(context: Context) : Boolean {
         } else {
             false
         }
+    }
+}
+
+/**
+ * Open location in external map application
+ * If no application is found, [appNotFoundCallback] will be executed, if provided
+ */
+fun openLocationExternal(context: Context, location: Location, name: String? = null, appNotFoundCallback: (() -> Unit)? = null) {
+    val geo = buildString {
+        append("geo:${location.latitude},${location.longitude}")
+        append("?q=${location.latitude},${location.longitude}")
+        if (!name.isNullOrEmpty()) {
+            append("(${name})")
+        }
+    }
+    val gmmIntentUri: Uri = Uri.parse(geo)
+    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+    if (context.packageManager.resolveActivity(mapIntent, 0) != null) {
+        context.startActivity(mapIntent)
+    } else {
+        appNotFoundCallback?.invoke()
     }
 }
 
