@@ -12,7 +12,10 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.*
 
 fun View.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), this.context.resources.displayMetrics)
@@ -45,6 +48,17 @@ fun <K, V> MutableMap<K, V>.renew(map: Map<K, V>): MutableMap<K, V> {
     clear()
     putAll(map)
     return this
+}
+
+fun View.delayOnLifecycle(
+    durationInMillis: Long,
+    dispatcher: CoroutineDispatcher = Dispatchers.Main,
+    block: (View) -> Unit
+): Job? = findViewTreeLifecycleOwner()?.let { lifecycleOwner ->
+    lifecycleOwner.lifecycle.coroutineScope.launch(dispatcher) {
+        delay(durationInMillis)
+        block.invoke(this@delayOnLifecycle)
+    }
 }
 
 fun Collection<String>.containsIgnoreCase(value: String): Boolean {
