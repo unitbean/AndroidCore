@@ -46,7 +46,7 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verCoroutines = "1.5.1"
+val verCoroutines = "1.5.2"
 val verRetrofit = "2.9.0"
 
 dependencies {
