@@ -16,10 +16,10 @@ mavenPublish {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
     defaultConfig {
         minSdk = 16
-        targetSdk = 30
+        targetSdk = 31
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -46,23 +46,23 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verCoroutines = "1.5.2"
+val verCoroutines = "1.6.0"
 val verRetrofit = "2.9.0"
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.4.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    testImplementation("org.mockito:mockito-core:3.11.2")
+    testImplementation("org.mockito:mockito-core:4.1.0")
     testImplementation("org.assertj:assertj-core:3.20.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.appcompat:appcompat:1.3.1")
-    implementation("androidx.core:core-ktx:1.6.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")

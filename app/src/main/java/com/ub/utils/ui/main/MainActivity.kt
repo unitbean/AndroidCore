@@ -40,7 +40,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     private val images: Array<String> by lazy {
         arrayOf(
             "https://tagline.ru/file/company/logo/unitbean-logo_tagline.png",
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Kotlin-logo.svg/1200px-Kotlin-logo.svg.png"
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Kotlin_logo_2021.svg/2880px-Kotlin_logo_2021.svg.png"
         )
     }
     private val random = Random()

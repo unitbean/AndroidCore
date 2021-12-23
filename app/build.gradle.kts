@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
     defaultConfig {
         applicationId = "com.ub.utils"
         minSdk = 16
-        targetSdk = 30
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -34,9 +34,9 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.38.1"
+val verDagger = "2.40.5"
 val verRetrofit = "2.9.0"
-val verCoroutines = "1.5.2"
+val verCoroutines = "1.6.0"
 
 dependencies {
     implementation(project(":android"))
@@ -52,13 +52,13 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:$verDagger")
 
     // android x
-    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
 
     // moxy
     implementation("com.github.moxy-community:moxy:$verMoxy")
