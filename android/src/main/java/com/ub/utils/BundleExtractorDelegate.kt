@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+@Deprecated("Use Android Navigation Component instead")
 inline fun <reified T> argument(
     key: String,
     defaultValue: T? = null
@@ -20,6 +21,7 @@ inline fun <reified T> argument(
         )
     }
 
+@Deprecated("Use Android Navigation Component instead")
 inline fun <reified T> extra(
     key: String,
     defaultValue: T? = null
@@ -32,6 +34,7 @@ inline fun <reified T> extra(
         )
     }
 
+@Deprecated("Use Android Navigation Component instead")
 inline fun <reified T> extractFromBundle(
     bundle: Bundle?,
     key: String,
@@ -44,6 +47,7 @@ inline fun <reified T> extractFromBundle(
     return result as T
 }
 
+@Deprecated("Use Android Navigation Component instead")
 class BundleExtractorDelegate<R, T>(private val initializer: (R) -> T) : ReadWriteProperty<R, T> {
 
     private object EMPTY

@@ -18,6 +18,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import java.util.regex.Pattern
+import kotlin.math.roundToInt
 
 fun Context.spannableBuilder(builder: (SpannableStringCreator.() -> Unit)): SpannableString {
     return SpannableStringCreator(this).apply {
@@ -137,7 +138,7 @@ class ResSpans(private val context: Context) : Iterable<Any> {
     fun size(@DimenRes id: Int) =
         spans.add(AbsoluteSizeSpan(context.resources.getDimension(id).toInt()))
 
-    fun size(sizeInSp: Float) =
+    fun size(@Dimension(unit = Dimension.SP) sizeInSp: Float) =
         spans.add(AbsoluteSizeSpan(TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             sizeInSp,
@@ -180,6 +181,9 @@ class ResSpans(private val context: Context) : Iterable<Any> {
         clickableSpan(isNeedUnderline, action)
     )
 
+    fun lineHeight(@Dimension(unit = Dimension.SP) sp: Float) =
+        spans.add(AbsoluteHeightSpan(context.spToPx(sp)))
+
     fun custom(span: Any) = spans.add(span)
 }
 
@@ -189,6 +193,24 @@ fun clickableSpan(isNeedUnderline: Boolean, action: () -> Unit) = object : Click
     override fun updateDrawState(ds: TextPaint) {
         super.updateDrawState(ds)
         ds.isUnderlineText = isNeedUnderline
+    }
+}
+
+class AbsoluteHeightSpan(@Dimension(unit = Dimension.SP) private val height: Float) : LineHeightSpan {
+    override fun chooseHeight(
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        spanstartv: Int,
+        v: Int,
+        fm: Paint.FontMetricsInt
+    ) {
+        val originHeight = fm.descent - fm.ascent
+        // If original height is not positive, do nothing
+        if (originHeight <= 0) return
+        val ratio = height * 1.0f / originHeight
+        fm.descent = (fm.descent * ratio).roundToInt()
+        fm.ascent = fm.descent - height.toInt()
     }
 }
 

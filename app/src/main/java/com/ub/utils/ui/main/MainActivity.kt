@@ -76,6 +76,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                     color(android.R.color.holo_blue_light)
                     size(10F)
                 }
+                appendLn("Small text") {
+                    size(7F)
+                    lineHeight(7F)
+                }
                 appendLn("Partial clickable clickable span")
                 partialSpan("clickable", searchFromIndex = 80) {
                     click(

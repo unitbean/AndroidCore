@@ -34,9 +34,9 @@ android {
 }
 
 val verMoxy = "2.2.2"
-val verDagger = "2.40.5"
+val verDagger = "2.42"
 val verRetrofit = "2.9.0"
-val verCoroutines = "1.6.0"
+val verCoroutines = "1.6.1"
 
 dependencies {
     implementation(project(":android"))
@@ -52,13 +52,13 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:$verDagger")
 
     // android x
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.6.0")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
 
     // moxy
     implementation("com.github.moxy-community:moxy:$verMoxy")

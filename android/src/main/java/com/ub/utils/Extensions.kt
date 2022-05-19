@@ -17,6 +17,10 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.*
 
+fun Context.spToPx(sp: Float): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, this.resources.displayMetrics)
+}
+
 fun View.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), this.context.resources.displayMetrics)
 }
@@ -25,12 +29,15 @@ fun Context.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), this.resources.displayMetrics)
 }
 
+@Deprecated("Use AndroidX Core-ktx method View.isVisible = true instead")
 inline val View.visible: View
     get() = apply { visibility = View.VISIBLE }
 
+@Deprecated("Use AndroidX Core-ktx method View.isInvisible = true instead")
 inline val View.invisible: View
     get() = apply { visibility = View.INVISIBLE }
 
+@Deprecated("Use AndroidX Core-ktx method View.isGone = true instead")
 inline val View.gone: View
     get() = apply { visibility = View.GONE }
 
