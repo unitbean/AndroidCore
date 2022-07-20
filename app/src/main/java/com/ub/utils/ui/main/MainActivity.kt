@@ -14,13 +14,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.ub.utils.*
+import com.ub.utils.CNetwork
+import com.ub.utils.R
+import com.ub.utils.UbNotify
+import com.ub.utils.UbUtils
+import com.ub.utils.gone
+import com.ub.utils.spannableBuilder
+import com.ub.utils.visible
 import moxy.MvpAppCompatActivity
 import moxy.MvpView
 import moxy.ktx.moxyPresenter
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import java.util.*
+import java.util.Random
 
 @StateStrategyType(OneExecutionStateStrategy::class)
 interface MainView : MvpView {
@@ -119,6 +125,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     override fun onConnectivityChange(state: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = when (state) {
+                CNetwork.NetworkState.ESTABLISH -> Color.MAGENTA
                 CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimaryDark)
                 CNetwork.NetworkState.DISABLE -> Color.RED
                 CNetwork.NetworkState.CAPTIVE -> Color.GREEN
@@ -128,6 +135,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         supportActionBar?.setBackgroundDrawable(
             GradientDrawable().apply {
                 setColor(when (state) {
+                    CNetwork.NetworkState.ESTABLISH -> Color.MAGENTA
                     CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
                     CNetwork.NetworkState.DISABLE -> Color.RED
                     CNetwork.NetworkState.CAPTIVE -> Color.GREEN

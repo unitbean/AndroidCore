@@ -65,7 +65,7 @@ class MainPresenter(private val urlToLoad: String) : MvpPresenter<MainView>() {
     fun networkTest(context: Context) {
         presenterScope.launch {
             try {
-                val network = context.cNetwork
+                val network = CNetwork(context, "https://google.com")
 
                 network.startListener().collect {
                     viewState.onConnectivityChange(it)

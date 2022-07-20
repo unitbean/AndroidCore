@@ -7,11 +7,24 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.*
-import android.net.NetworkCapabilities.*
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL
+import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
+import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED
+import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED
+import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
+import android.net.NetworkCapabilities.TRANSPORT_BLUETOOTH
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
+import android.net.NetworkCapabilities.TRANSPORT_USB
+import android.net.NetworkInfo
+import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.annotation.StringDef
+import com.ub.utils.CNetwork.NetworkState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -35,7 +48,8 @@ import kotlinx.coroutines.flow.callbackFlow
  * 7. [TRANSPORT_CELLULAR] (в роуминге) - соединение установлено, но ограничено системной защитой от случайной активации роуминга
  * 8. [TRANSPORT_BLUETOOTH] - соединение установлено, передача данных доступна
  * 9. [TRANSPORT_BLUETOOTH] - соединение установлено, передача данных недоступна (bluetooth-доступ без SIM-карты, либо сценарий из п.6)
- * 10. Прочий доступ (не тестировался) - теоретически должен работать, если на [Build.VERSION_CODES.LOLLIPOP] и выше
+ * 10. [TRANSPORT_USB] - соединение установлено, передача данных доступна
+ * 11. Прочий доступ (не тестировался) - теоретически должен работать, если на [Build.VERSION_CODES.LOLLIPOP] и выше
  * в [NetworkCapabilities] будет среди прочего [NetworkCapabilities.NET_CAPABILITY_VALIDATED].
  * На [Build.VERSION_CODES.KITKAT] работать тоже, скорее всего, будет из-за топорности API, там и ломаться нечему
  *
@@ -47,7 +61,8 @@ import kotlinx.coroutines.flow.callbackFlow
  * 2. А на API <= [Build.VERSION_CODES.KITKAT] сценарии 2 и 3 вообще не работают, так как у [NetworkInfo] нет соответсвующего API
  */
 class CNetwork(
-    private val context: Context
+    private val context: Context,
+    private val hostName: String? = null
 ) {
     private val manager: ConnectivityManager? by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
@@ -56,11 +71,11 @@ class CNetwork(
     @NetworkState
     @Suppress("DEPRECATION")
     fun startListener(): Flow<String> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             callbackFlow {
                 val callback = object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        trySend(NetworkState.ACTIVE)
+                        trySend(NetworkState.ESTABLISH)
                     }
 
                     override fun onLost(network: Network) {
@@ -71,12 +86,26 @@ class CNetwork(
                         trySend(NetworkState.DISABLE)
                     }
 
-                    override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                    override fun onCapabilitiesChanged(
+                        network: Network,
+                        networkCapabilities: NetworkCapabilities
+                    ) {
                         trySend(
                             when {
-                                networkCapabilities.hasTransport(TRANSPORT_CELLULAR) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED) && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED) -> NetworkState.ACTIVE
-                                networkCapabilities.hasTransport(TRANSPORT_WIFI) && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
-                                networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED) -> NetworkState.ACTIVE
+                                networkCapabilities.hasTransport(TRANSPORT_CELLULAR)
+                                    && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED)
+                                    && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED)
+                                -> if (networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED)
+                                    && networkCapabilities.hasCapability(NET_CAPABILITY_INTERNET)
+                                ) {
+                                    NetworkState.ACTIVE
+                                } else {
+                                    NetworkState.ESTABLISH
+                                }
+                                networkCapabilities.hasTransport(TRANSPORT_WIFI)
+                                    && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
+                                networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED)
+                                    && networkCapabilities.hasCapability(NET_CAPABILITY_INTERNET) -> NetworkState.ACTIVE
                                 else -> NetworkState.DISABLE
                             }
                         )
@@ -114,10 +143,16 @@ class CNetwork(
         }
     }
 
-    @StringDef(NetworkState.ACTIVE, NetworkState.DISABLE, NetworkState.CAPTIVE)
+    @StringDef(
+        NetworkState.ESTABLISH,
+        NetworkState.ACTIVE,
+        NetworkState.DISABLE,
+        NetworkState.CAPTIVE
+    )
     @Retention(AnnotationRetention.SOURCE)
     annotation class NetworkState {
         companion object {
+            const val ESTABLISH = "ESTABLISH"
             const val ACTIVE = "ACTIVE"
             const val DISABLE = "DISABLE"
             const val CAPTIVE = "CAPTIVE"
