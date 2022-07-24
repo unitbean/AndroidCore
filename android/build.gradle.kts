@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     id("com.android.library")
@@ -11,8 +12,10 @@ tasks.dokkaJavadoc.configure {
     outputDirectory.set(buildDir.resolve("javadoc"))
 }
 
-mavenPublish {
-    sonatypeHost = com.vanniktech.maven.publish.SonatypeHost.S01
+mavenPublishing {
+    signAllPublications()
+    pomFromGradleProperties()
+    publishToMavenCentral(SonatypeHost.S01)
 }
 
 android {
