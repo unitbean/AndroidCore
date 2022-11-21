@@ -39,11 +39,13 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
-
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
     buildFeatures {
         buildConfig = false
     }
@@ -52,12 +54,13 @@ android {
 val verMoxy = "2.2.2"
 val verCoroutines = "1.6.4"
 val verRetrofit = "2.9.0"
+val verLifecycle = "2.5.1"
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.5.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    testImplementation("org.mockito:mockito-core:4.8.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    testImplementation("org.mockito:mockito-core:4.9.0")
     testImplementation("org.assertj:assertj-core:3.23.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
@@ -66,7 +69,9 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$verLifecycle")
+    implementation("androidx.biometric:biometric:1.1.0")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")

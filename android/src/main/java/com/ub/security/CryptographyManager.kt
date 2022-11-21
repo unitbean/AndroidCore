@@ -7,8 +7,8 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
-import java.nio.charset.Charset
 import java.security.KeyStore
+import java.security.KeyStoreException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -43,14 +43,14 @@ interface CryptographyManager {
      *
      * @param cipher instance must be received from BiometricPrompt.AuthenticationResult
      */
-    fun encryptData(plaintext: String, cipher: Cipher): EncryptedData
+    fun encryptData(value: ByteArray, cipher: Cipher): EncryptedData
 
     /**
      * The [Cipher] created with [getInitializedCipherForDecryption] is used here
      *
      * @param cipher instance must be received from BiometricPrompt.AuthenticationResult
      */
-    fun decryptData(ciphertext: ByteArray, cipher: Cipher): String
+    fun decryptData(ciphertext: ByteArray, cipher: Cipher): ByteArray
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -79,14 +79,13 @@ class CryptographyManagerImpl(
         return cipher
     }
 
-    override fun encryptData(plaintext: String, cipher: Cipher): EncryptedData {
-        val ciphertext = cipher.doFinal(plaintext.toByteArray(Charset.forName("UTF-8")))
+    override fun encryptData(value: ByteArray, cipher: Cipher): EncryptedData {
+        val ciphertext = cipher.doFinal(value)
         return EncryptedData(ciphertext, cipher.iv)
     }
 
-    override fun decryptData(ciphertext: ByteArray, cipher: Cipher): String {
-        val plaintext = cipher.doFinal(ciphertext)
-        return String(plaintext, Charset.forName("UTF-8"))
+    override fun decryptData(ciphertext: ByteArray, cipher: Cipher): ByteArray {
+        return cipher.doFinal(ciphertext)
     }
 
     private fun getCipher(): Cipher {
@@ -134,4 +133,11 @@ data class EncryptedData(
         result = 31 * result + initializationVector.contentHashCode()
         return result
     }
+}
+
+@kotlin.jvm.Throws(KeyStoreException::class)
+fun removeKeyFromKeystore(keyName: String, keyStoreName: String = "AndroidKeyStore") {
+    val keyStore = KeyStore.getInstance(keyStoreName)
+    keyStore.load(null)
+    keyStore.deleteEntry(keyName)
 }

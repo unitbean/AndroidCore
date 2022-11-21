@@ -1,14 +1,27 @@
 package com.ub.utils.di.components
 
-import com.ub.utils.di.modules.ApiModule
-import com.ub.utils.di.modules.MainModule
-import com.ub.utils.ui.main.MainPresenter
-import com.ub.utils.ui.main.MainRepository
+import android.content.Context
+import com.ub.utils.di.CoreViewModelProvider
+import com.ub.utils.di.modules.CoreModule
+import com.ub.utils.di.services.ApiService
+import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApiModule::class])
+@Component(modules = [CoreModule::class])
 interface AppComponent {
-    fun mainSubcomponent(main: MainModule): MainSubcomponent
+
+    val apiService: ApiService
+
+    val viewModelProvider: CoreViewModelProvider
+
+    @Component.Builder
+    interface Builder {
+
+        @BindsInstance
+        fun context(context: Context): Builder
+
+        fun build(): AppComponent
+    }
 }

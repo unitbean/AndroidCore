@@ -3,8 +3,8 @@ package com.ub.utils
 import android.app.Application
 import com.ub.utils.di.components.AppComponent
 import com.ub.utils.di.components.DaggerAppComponent
-import com.ub.utils.di.components.MainSubcomponent
-import com.ub.utils.di.modules.ApiModule
+import com.ub.utils.di.components.DaggerMainComponent
+import com.ub.utils.di.components.MainComponent
 import com.ub.utils.di.modules.MainModule
 
 class BaseApplication : Application() {
@@ -18,9 +18,8 @@ class BaseApplication : Application() {
     }
 
     private fun initDI() {
-        appComponent = DaggerAppComponent
-            .builder()
-            .apiModule(ApiModule())
+        appComponent = DaggerAppComponent.builder()
+            .context(this)
             .build()
     }
 
@@ -28,18 +27,12 @@ class BaseApplication : Application() {
 
         lateinit var appComponent: AppComponent
             private set
-        private var mainSubcomponent: MainSubcomponent? = null
 
-        fun getMainSubcomponent(): MainSubcomponent {
-            if (mainSubcomponent == null) {
-                mainSubcomponent = appComponent.mainSubcomponent(MainModule)
-            }
-
-            return mainSubcomponent ?: throw IllegalStateException("mainSubcomponent has been cleared after call")
-        }
-
-        fun clearMainSubcomponent() {
-            mainSubcomponent = null
+        fun createMainComponent(): MainComponent {
+            return DaggerMainComponent.builder()
+                .appComponent(appComponent)
+                .mainModule(MainModule)
+                .build()
         }
     }
 }

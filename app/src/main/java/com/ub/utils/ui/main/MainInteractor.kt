@@ -3,7 +3,6 @@ package com.ub.utils.ui.main
 import android.graphics.Bitmap
 import com.ub.utils.containsIgnoreCase
 import com.ub.utils.di.services.api.responses.PostResponse
-import io.reactivex.Single
 import java.util.*
 
 class MainInteractor(private val repository: IMainRepository) {
@@ -12,19 +11,14 @@ class MainInteractor(private val repository: IMainRepository) {
         return repository.getPosts()
     }
 
-    fun isEquals(): Single<Boolean> {
-        return Single.just(arrayListOf("Test", "TEst", "TESt", "TEST"))
-            .map {
-                return@map it.containsIgnoreCase("test")
-            }
+    fun isEquals(): Boolean {
+        val list = arrayListOf("Test", "TEst", "TESt", "TEST")
+        return list.containsIgnoreCase("test")
     }
 
-    fun generatePushContent(list: List<PostResponse>): Single<Pair<String, String>> {
-        return Single.just(list)
-            .map {
-                val rnd = list[Random().nextInt(list.size)]
-                return@map Pair(rnd.title, rnd.body)
-            }
+    fun generatePushContent(list: List<PostResponse>): Pair<String, String> {
+        val rnd = list[Random().nextInt(list.size)]
+        return Pair(rnd.title, rnd.body)
     }
 
     suspend fun loadImage(url: String): Bitmap {
