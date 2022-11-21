@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_main"
+        android:title="@string/menu_title_main"
+        android:icon="@drawable/ic_vector_home"/>
+    <item
+        android:id="@+id/menu_biometry"
+        android:title="@string/menu_title_biometry"
+        android:icon="@drawable/ic_vector_biometry"/>
+</menu>

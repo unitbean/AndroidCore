@@ -18,14 +18,14 @@ import com.ub.utils.CNetwork
 import com.ub.utils.R
 import com.ub.utils.UbNotify
 import com.ub.utils.UbUtils
-import com.ub.utils.databinding.MainFragmentBinding
+import com.ub.utils.databinding.FragmentMainBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.utils.provideFactory
 import com.ub.utils.spannableBuilder
 import kotlinx.coroutines.launch
 import java.util.Random
 
-class MainFragment : Fragment(R.layout.main_fragment), View.OnClickListener {
+class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
 
     private val viewModel: MainViewModel by viewModels {
         val images: Array<String> by lazy {
@@ -42,11 +42,11 @@ class MainFragment : Fragment(R.layout.main_fragment), View.OnClickListener {
     }
 
     private val random = Random()
-    private var binding: MainFragmentBinding? = null
+    private var binding: FragmentMainBinding? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = MainFragmentBinding.bind(view)
+        binding = FragmentMainBinding.bind(view)
 
         binding?.btnTextAction?.setOnClickListener(this)
         binding?.btnTextPush?.setOnClickListener(this)

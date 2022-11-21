@@ -7,18 +7,20 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.MainFragment">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_text_push"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
         android:text="NEXT PUSH"
         app:layout_constraintBottom_toTopOf="@id/btn_text_action"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_text_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="8dp"
         android:text="HIDE TEXT"
         app:layout_constraintBottom_toBottomOf="parent" />
 

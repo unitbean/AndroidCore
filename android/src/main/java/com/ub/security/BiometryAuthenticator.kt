@@ -28,7 +28,7 @@ class BiometryAuthenticator {
             isDecrypt = null
             dataToProceed = null
             val exception = CancellationException(
-                "Biometry operation error",
+                null,
                 BiomteryAuthenticatorException(
                     errorCode = errorCode,
                     errString = errString
@@ -168,4 +168,4 @@ class BiometryAuthenticator {
 data class BiomteryAuthenticatorException(
     val errorCode: Int,
     val errString: CharSequence
-) : Throwable(message = errorCode.toString())
+) : Throwable(message = errString.toString())
