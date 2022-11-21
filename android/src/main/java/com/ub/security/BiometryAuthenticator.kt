@@ -25,15 +25,15 @@ class BiometryAuthenticator {
     private val callback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-//            if (errorCode != BiometricPrompt.ERROR_USER_CANCELED
-//                && errorCode != BiometricPrompt.ERROR_CANCELED
-//                && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON
-//            ) {
-//
-//            }
             isDecrypt = null
             dataToProceed = null
-            val exception = CancellationException("Biometry error: $errString", null)
+            val exception = CancellationException(
+                "Biometry operation error",
+                BiomteryAuthenticatorException(
+                    errorCode = errorCode,
+                    errString = errString
+                )
+            )
             encryptionAwait?.cancel(exception)
             decryptionAwait?.cancel(exception)
             encryptionAwait = null
@@ -42,7 +42,7 @@ class BiometryAuthenticator {
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             when (isDecrypt) {
-                false -> {
+                false -> try {
                     val encryptedData = result.cryptoObject?.cipher?.let { cipher ->
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             cryptographyManager?.encryptData(
@@ -51,19 +51,25 @@ class BiometryAuthenticator {
                             )
                         } else null
                     }
-                    dataToProceed = null
                     encryptionAwait?.complete(encryptedData)
+                } catch (e: Exception) {
+                    encryptionAwait?.completeExceptionally(e)
+                } finally {
+                    dataToProceed = null
                     encryptionAwait = null
                     isDecrypt = null
                 }
-                true -> {
+                true -> try {
                     val decryptedData = result.cryptoObject?.cipher?.let { cipher ->
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             cryptographyManager?.decryptData(dataToProceed ?: throw NullPointerException("Data to restore cannot be null"), cipher)
                         } else null
                     }
-                    dataToProceed = null
                     decryptionAwait?.complete(decryptedData)
+                } catch (e: Exception) {
+                    decryptionAwait?.completeExceptionally(e)
+                } finally {
+                    dataToProceed = null
                     decryptionAwait = null
                     isDecrypt = null
                 }
@@ -94,24 +100,30 @@ class BiometryAuthenticator {
         title: String,
         negativeText: String,
         subtitle: String? = null,
-    ): EncryptedData? {
+    ): Result<EncryptedData?> {
         this.isDecrypt = false
         this.dataToProceed = valueToSave
-        encryptionAwait?.cancel(CancellationException("Encryption process has been canceled", OperationCanceledException()))
-        this.encryptionAwait = CompletableDeferred()
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setNegativeButtonText(negativeText)
-            .setSubtitle(subtitle)
-            .build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val cipher = cryptographyManager!!.getInitializedCipherForEncryption(keyName = keyName)
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
-        } else {
-            biometricPrompt.authenticate(promptInfo)
+        val result = try {
+            encryptionAwait?.cancel(CancellationException("Encryption process has been canceled", OperationCanceledException()))
+            this.encryptionAwait = CompletableDeferred()
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setNegativeButtonText(negativeText)
+                .setSubtitle(subtitle)
+                .build()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val cipher =
+                    cryptographyManager!!.getInitializedCipherForEncryption(keyName = keyName)
+                biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+            } else {
+                biometricPrompt.authenticate(promptInfo)
+            }
+            encryptionAwait?.await()
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
 
-        return encryptionAwait!!.await()
+        return Result.success(result)
     }
 
     suspend fun authAndRestore(
@@ -121,29 +133,39 @@ class BiometryAuthenticator {
         title: String,
         negativeText: String,
         subtitle: String? = null,
-    ): ByteArray? {
+    ): Result<ByteArray?> {
         this.isDecrypt = true
         this.dataToProceed = encryptedValue
-        decryptionAwait?.cancel(CancellationException("Decryption process has been canceled", OperationCanceledException()))
-        this.decryptionAwait = CompletableDeferred()
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setNegativeButtonText(negativeText)
-            .setSubtitle(subtitle)
-            .build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val cipher = cryptographyManager!!.getInitializedCipherForDecryption(
-                keyName = keyName,
-                initializationVector = iv
-            )
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
-        } else {
-            biometricPrompt.authenticate(promptInfo)
+        val result = try {
+            decryptionAwait?.cancel(CancellationException("Decryption process has been canceled", OperationCanceledException()))
+            this.decryptionAwait = CompletableDeferred()
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setNegativeButtonText(negativeText)
+                .setSubtitle(subtitle)
+                .build()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val cipher = cryptographyManager!!.getInitializedCipherForDecryption(
+                    keyName = keyName,
+                    initializationVector = iv
+                )
+                biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+            } else {
+                biometricPrompt.authenticate(promptInfo)
+            }
+            decryptionAwait?.await()
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
-        return decryptionAwait!!.await()
+        return Result.success(result)
     }
 
     fun cancel() {
         this.biometricPrompt.cancelAuthentication()
     }
 }
+
+data class BiomteryAuthenticatorException(
+    val errorCode: Int,
+    val errString: CharSequence
+) : Throwable(message = errorCode.toString())

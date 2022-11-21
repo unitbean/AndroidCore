@@ -37,15 +37,15 @@ class BiometricFragment : Fragment(R.layout.fragment_biometric) {
         binding?.doEncrypt?.setOnClickListener {
             val valueToEncrypt = (binding?.inputField?.text?.toString()?: "").toByteArray()
             viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    biometryAuthenticator?.authAndSave(
-                        valueToSave = valueToEncrypt,
-                        keyName = "androidCore",
-                        negativeText = "Cancel",
-                        title = "Saving test value"
-                    )?.let(viewModel::saveEncryptedValue)
-                } catch (e: Exception) {
-                    viewModel.onError(e)
+                val result = biometryAuthenticator?.authAndSave(
+                    valueToSave = valueToEncrypt,
+                    keyName = "androidCore",
+                    negativeText = "Cancel",
+                    title = "Saving test value"
+                )
+                when {
+                    result?.isSuccess == true -> viewModel.saveEncryptedValue(result.getOrNull()!!)
+                    result?.isFailure == true -> viewModel.onError(result.exceptionOrNull()!!)
                 }
             }
         }
@@ -83,18 +83,16 @@ class BiometricFragment : Fragment(R.layout.fragment_biometric) {
             }
             launch {
                 viewModel.toDecryptFlow.collect { toDecryptValue ->
-                    try {
-                        biometryAuthenticator?.authAndRestore(
-                            keyName = "androidCore",
-                            encryptedValue = toDecryptValue.ciphertext,
-                            iv = toDecryptValue.initializationVector,
-                            title = "Restoring test value",
-                            negativeText = "Cancel"
-                        )?.let { decryptedResult ->
-                            binding?.inputField?.setText(String(decryptedResult))
-                        }
-                    } catch (e: Exception) {
-                        viewModel.onError(e)
+                    val result = biometryAuthenticator?.authAndRestore(
+                        keyName = "androidCore",
+                        encryptedValue = toDecryptValue.ciphertext,
+                        iv = toDecryptValue.initializationVector,
+                        title = "Restoring test value",
+                        negativeText = "Cancel"
+                    )
+                    when {
+                        result?.isSuccess == true -> binding?.inputField?.setText(String(result.getOrNull()!!))
+                        result?.isFailure == true -> viewModel.onError(result.exceptionOrNull()!!)
                     }
                 }
             }

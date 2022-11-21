@@ -91,9 +91,9 @@ class BiometricViewModel(
         }
     }
 
-    fun onError(error: Exception) {
+    fun onError(error: Throwable) {
         withUseCaseScope {
-            _errorFlow.update { error.message }
+            _errorFlow.update { error.message ?: error.cause?.message ?: error.toString() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && error is KeyPermanentlyInvalidatedException) {
                 removeKeyFromKeystore(keyName = "androidCore")
                 dataStore.updateData { preferences ->
