@@ -48,4 +48,4 @@ infix fun Calendar.dayRoll(amount: Int) {
     timeInMillis += 1000 * 60 * 60 * 24 * amount
 }
 
-fun Calendar.debugPrint(): String = "$day.$month.$year day of week: $dayOfWeek $hours:$minutes:$seconds:$milliseconds"
+fun Calendar.debugPrint(): String = "$day.$month.$year day of week: $dayOfWeek $hours:$minutes:$seconds:$milliseconds in timezone $timeZone"

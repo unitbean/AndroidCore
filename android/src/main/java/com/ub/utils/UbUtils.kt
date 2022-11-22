@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -27,6 +28,7 @@ import kotlin.coroutines.resumeWithException
 object UbUtils {
     private var context : Context? = null
 
+    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
     fun init(context : Context) {
         this.context = context
     }
@@ -34,6 +36,7 @@ object UbUtils {
     /**
      * Получение строки с переданными параметрами для форматирования
      */
+    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
     @JvmStatic
     fun getString(@StringRes id: Int, vararg parameters: Any) : String {
         context?.let {
@@ -46,6 +49,7 @@ object UbUtils {
     /**
      * Получение ресурсов
      */
+    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
     @JvmStatic
     fun getResources(): Resources {
         context?.let {
@@ -59,21 +63,10 @@ object UbUtils {
      * Копирование текста в буфер обмена
      * @return успешность операции
      */
+    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
     @JvmStatic
     fun copyTextToClipboard(text: String): Boolean {
-        context?.let {
-            val clipManager = it.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-            val clipData = ClipData.newPlainText("text", text)
-            clipManager?.let { manager ->
-                manager.setPrimaryClip(clipData)
-
-                return true
-            }
-
-            return false
-        }
-
-        return false
+        return context?.copyTextToClipboard(text = text) ?: false
     }
 
     /**
@@ -92,6 +85,15 @@ object UbUtils {
         }
         return result
     }
+}
+
+fun Context.copyTextToClipboard(text: String, label: String = "text"): Boolean {
+    val clipManager = ContextCompat.getSystemService(this, ClipboardManager::class.java)
+    val clipData = ClipData.newPlainText(label, text)
+    return clipManager?.let { manager ->
+        manager.setPrimaryClip(clipData)
+        true
+    } ?: false
 }
 
 /**
@@ -270,7 +272,28 @@ fun openMarket(context: Context) : Boolean {
  * Open location in external map application
  * If no application is found, [appNotFoundCallback] will be executed, if provided
  */
+@Deprecated(
+    message = "Use the more safe method createOpenLocationExternalIntent instead",
+    replaceWith = ReplaceWith(
+        expression = "createOpenLocationExternalIntent(location, name)",
+        imports = arrayOf("com.ub.utils.createOpenLocationExternalIntent")
+    )
+)
 fun openLocationExternal(context: Context, location: Location, name: String? = null, appNotFoundCallback: (() -> Unit)? = null) {
+    val mapIntent = createOpenLocationExternalIntent(location, name)
+    if (context.packageManager.resolveActivity(mapIntent, 0) != null) {
+        context.startActivity(mapIntent)
+    } else {
+        appNotFoundCallback?.invoke()
+    }
+}
+
+/**
+ * Create the [Intent] to open location in external map application
+ *
+ * Recommended use this with wrap in [Intent.createChooser] for better UX
+ */
+fun createOpenLocationExternalIntent(location: Location, name: String? = null): Intent {
     val geo = buildString {
         append("geo:${location.latitude},${location.longitude}")
         append("?q=${location.latitude},${location.longitude}")
@@ -279,12 +302,7 @@ fun openLocationExternal(context: Context, location: Location, name: String? = n
         }
     }
     val gmmIntentUri: Uri = Uri.parse(geo)
-    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-    if (context.packageManager.resolveActivity(mapIntent, 0) != null) {
-        context.startActivity(mapIntent)
-    } else {
-        appNotFoundCallback?.invoke()
-    }
+    return Intent(Intent.ACTION_VIEW, gmmIntentUri)
 }
 
 /**
