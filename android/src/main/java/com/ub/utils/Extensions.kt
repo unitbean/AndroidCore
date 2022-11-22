@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable
 import android.util.Property
 import android.util.TypedValue
 import android.view.View
+import androidx.activity.ComponentDialog
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.BlendModeColorFilterCompat
@@ -95,8 +96,8 @@ fun Drawable.colorize(@ColorInt colorInt: Int) {
 }
 
 /**
- * Launches a new coroutine and repeats `block` every time the Fragment's viewLifecycleOwner
- * is in and out of `minActiveState` lifecycle state.
+ * Launches a new coroutine and repeats [block] every time the [Fragment]'s [Fragment.getViewLifecycleOwner]
+ * is in and out of [minActiveState] lifecycle state.
  */
 inline fun Fragment.launchAndRepeatWithViewLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
@@ -104,6 +105,21 @@ inline fun Fragment.launchAndRepeatWithViewLifecycle(
 ) {
     viewLifecycleOwner.lifecycleScope.launch {
         viewLifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {
+            block()
+        }
+    }
+}
+
+/**
+ * Launches a new coroutine and repeats [block] every time the [ComponentDialog]'s [ComponentDialog.lifecycleScope]
+ * is in and out of [minActiveState] lifecycle state.
+ */
+inline fun ComponentDialog.launchAndRepeatWithViewLifecycle(
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    crossinline block: suspend CoroutineScope.() -> Unit
+) {
+    lifecycleScope.launch {
+        lifecycle.repeatOnLifecycle(minActiveState) {
             block()
         }
     }
