@@ -1,5 +1,7 @@
 package com.ub.utils.ui.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
@@ -7,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -44,6 +47,12 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     private val random = Random()
     private var binding: FragmentMainBinding? = null
 
+    private val permissionCaller = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            showPush()
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
@@ -68,12 +77,6 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 viewModel.image.collect { showImage(it) }
             }
         }
-
-        viewModel.load()
-
-        viewModel.loadImage()
-
-        viewModel.networkTest(view.context)
     }
 
     override fun onDestroy() {
@@ -151,7 +154,11 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun showPush() {
-        viewModel.generatePushContent()
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            permissionCaller.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.generatePushContent()
+        }
     }
 
     private fun hideTest() {

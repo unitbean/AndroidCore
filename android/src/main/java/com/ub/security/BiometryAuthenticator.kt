@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED")
+
 package com.ub.security
 
 import android.os.Build
@@ -29,7 +31,7 @@ class BiometryAuthenticator {
             dataToProceed = null
             val exception = CancellationException(
                 null,
-                BiomteryAuthenticatorException(
+                BiometryAuthenticatorException(
                     errorCode = errorCode,
                     errString = errString
                 )
@@ -165,7 +167,7 @@ class BiometryAuthenticator {
     }
 }
 
-data class BiomteryAuthenticatorException(
+data class BiometryAuthenticatorException(
     val errorCode: Int,
     val errString: CharSequence
-) : Throwable(message = errString.toString())
+) : Exception(message = errString.toString())

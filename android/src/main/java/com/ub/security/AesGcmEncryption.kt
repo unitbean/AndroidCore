@@ -20,8 +20,8 @@ interface AuthenticatedEncryption {
  *
  * В случае возникновения вопросов по работе и использованию сей поделки, можно смело справшивать _сами_знаете_кого_
  *
- * @property secureRandom - служит для генерации псевдослучайных чисел при создании нового ключа
- * @property provider - служит для создания объекта [Cipher]. Может быть null, тогда используется стандартный [Provider]
+ * @property secureRandom служит для генерации псевдослучайных чисел при создании нового ключа
+ * @property provider служит для создания объекта [Cipher]. Может быть null, тогда используется стандартный [Provider]
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class AesGcmEncryption(
@@ -32,9 +32,9 @@ class AesGcmEncryption(
     /**
      * Шифрует переданные данные
      *
-     * @param bytesToEncrypt - данные для шифрования
-     * @param keyToEncrypt - ключ шифрования. Обязательно должен быть размером 16 байт
-     * @param associatedData - опциональное поле дополнительной информацией, которая будет применена при шифровании
+     * @param bytesToEncrypt данные для шифрования
+     * @param keyToEncrypt ключ шифрования. Обязательно должен быть размером 16 байт
+     * @param associatedData опциональное поле дополнительной информацией, которая будет применена при шифровании
      */
     override fun encrypt(bytesToEncrypt: ByteArray,
                          @Size(16) keyToEncrypt: ByteArray,
@@ -61,9 +61,9 @@ class AesGcmEncryption(
      * Далее идет извлечение initialization vector'а из массива и с помощью него и [keyToDecrypt]
      * происходит расшифровка
      *
-     * @param bytesToDecrypt - данные для дешифрования
-     * @param keyToDecrypt - ключ дешифрования. Обязательно должен быть размером 16 байт
-     * @param associatedData - опциональное поле дополнительной информацией, которая будет применена при дешифровании
+     * @param bytesToDecrypt данные для дешифрования
+     * @param keyToDecrypt ключ дешифрования. Обязательно должен быть размером 16 байт
+     * @param associatedData опциональное поле дополнительной информацией, которая будет применена при дешифровании
      */
     override fun decrypt(bytesToDecrypt: ByteArray,
                          @Size(16) keyToDecrypt: ByteArray,
@@ -101,7 +101,7 @@ class AesGcmEncryption(
  * 5. записывает созданный массив байт в [ByteBuffer] из пункта 1
  * 6. преобразует [ByteBuffer] в массив байт и возвращает его
  *
- * @param length - размерность ключа. По-умолчанию имеет значение 16 бит
+ * @param length размерность ключа. По-умолчанию имеет значение 16 бит
  */
 fun Any.toSecretKey(length: Int = 16): ByteArray = ByteBuffer.allocate(length).apply {
     put(this@toSecretKey.hashCode().toString().toByteArray(charset("UTF-8")))

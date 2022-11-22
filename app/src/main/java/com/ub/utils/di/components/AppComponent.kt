@@ -12,6 +12,8 @@ import javax.inject.Singleton
 @Component(modules = [CoreModule::class])
 interface AppComponent {
 
+    val context: Context
+
     val apiService: ApiService
 
     val viewModelProvider: CoreViewModelProvider

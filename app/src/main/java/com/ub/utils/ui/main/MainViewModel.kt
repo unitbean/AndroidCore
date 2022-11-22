@@ -1,5 +1,6 @@
 package com.ub.utils.ui.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
@@ -23,9 +24,11 @@ interface MainViewModelProvider {
     fun create(urlToLoad: String): MainViewModel
 }
 
+@SuppressLint("StaticFieldLeak")
 class MainViewModel @AssistedInject constructor(
     @Assisted private val urlToLoad: String,
     private val interactor: MainInteractor,
+    private val context: Context
 ) : ViewModel() {
 
     private val list = ArrayList<PostResponse>()
@@ -45,7 +48,13 @@ class MainViewModel @AssistedInject constructor(
     private val _image = MutableSharedFlow<Bitmap>()
     val image = _image.asSharedFlow()
 
-    fun load() {
+    init {
+        load()
+        loadImage()
+        networkTest(context)
+    }
+
+    private fun load() {
         withUseCaseScope(
             onError = { e -> LogUtils.e("POST", e.message ?: "Error", e) }
         ) {
@@ -63,7 +72,7 @@ class MainViewModel @AssistedInject constructor(
         }
     }
 
-    fun networkTest(context: Context) {
+    private fun networkTest(context: Context) {
         withUseCaseScope(
             onError = { e -> LogUtils.e("NetworkTest", e.message, e) }
         ) {
@@ -81,7 +90,7 @@ class MainViewModel @AssistedInject constructor(
         }
     }
 
-    fun loadImage() {
+    private fun loadImage() {
         withUseCaseScope(
             onError = { e -> LogUtils.e("ImageDownload", e.message, e) }
         ) {
