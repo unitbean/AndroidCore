@@ -170,4 +170,4 @@ class BiometryAuthenticator {
 data class BiometryAuthenticatorException(
     val errorCode: Int,
     val errString: CharSequence
-) : Exception(message = errString.toString())
+) : Exception(errString.toString())
