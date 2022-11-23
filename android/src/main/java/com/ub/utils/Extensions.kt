@@ -147,8 +147,8 @@ fun ViewModel.withUseCaseScope(
     }
 }
 
-fun <T : ViewModel>provideFactory(
-    customFactory: () -> T
+inline fun <T : ViewModel>provideFactory(
+    crossinline customFactory: () -> T
 ): ViewModelProvider.Factory =
     object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
