@@ -5,6 +5,8 @@ package com.ub.utils
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Property
 import android.util.TypedValue
 import android.view.View
@@ -15,13 +17,16 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.*
 
@@ -156,3 +161,29 @@ inline fun <T : ViewModel>provideFactory(
             return customFactory.invoke() as T
         }
     }
+
+fun <T : ViewModel>provideSavedFactory(
+    customFactory: (SavedStateHandle) -> T
+): ViewModelProvider.Factory =
+    object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+            return customFactory.invoke(extras.createSavedStateHandle()) as T
+        }
+    }
+
+fun Context.getFileNameFromUri(uri: Uri): String? {
+    return this.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        cursor.moveToFirst()
+        val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        cursor.getString(columnIndex)
+    }
+}
+
+fun Context.getFileSizeFromUri(uri: Uri): Long? {
+    return this.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        cursor.moveToFirst()
+        val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+        cursor.getLong(columnIndex)
+    }
+}
