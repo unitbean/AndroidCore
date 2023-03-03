@@ -65,7 +65,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.appcompat:appcompat:1.6.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$verLifecycle")

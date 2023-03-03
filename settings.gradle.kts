@@ -13,4 +13,5 @@ dependencyResolutionManagement {
         jcenter() // Warning: this repository is going to shut down soon
     }
 }
+rootProject.name = "AndroidCore"
 include(":app", ":android")
