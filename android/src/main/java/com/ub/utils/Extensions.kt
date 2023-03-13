@@ -6,6 +6,9 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.util.Property
 import android.util.TypedValue
@@ -185,5 +188,14 @@ fun Context.getFileSizeFromUri(uri: Uri): Long? {
         cursor.moveToFirst()
         val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
         cursor.getLong(columnIndex)
+    }
+}
+
+@Suppress("DEPRECATION")
+fun <T : Parcelable> Bundle.getParcelableCompat(key: String, clazz: Class<T>): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelable(key, clazz)
+    } else {
+        getParcelable(key)
     }
 }
