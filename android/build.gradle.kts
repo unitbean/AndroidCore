@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import com.vanniktech.maven.publish.SonatypeHost
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
 plugins {
     id("com.android.library")
@@ -15,6 +16,7 @@ tasks.dokkaJavadoc.configure {
 mavenPublishing {
     signAllPublications()
     publishToMavenCentral(SonatypeHost.S01)
+    AndroidSingleVariantLibrary()
 }
 
 android {
@@ -52,19 +54,19 @@ android {
 val verMoxy = "2.2.2"
 val verCoroutines = "1.6.4"
 val verRetrofit = "2.9.0"
-val verLifecycle = "2.5.1"
+val verLifecycle = "2.6.1"
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    testImplementation("org.mockito:mockito-core:5.1.1")
+    testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")

@@ -41,7 +41,7 @@ val verMoxy = "2.2.2"
 val verDagger = "2.45"
 val verRetrofit = "2.9.0"
 val verCoroutines = "1.6.4"
-val verLifecycle = "2.5.1"
+val verLifecycle = "2.6.1"
 
 dependencies {
     implementation(project(":android"))
@@ -59,13 +59,13 @@ dependencies {
     // android x
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.activity:activity-ktx:1.6.1")
-    implementation("androidx.fragment:fragment-ktx:1.5.5")
+    implementation("androidx.activity:activity-ktx:1.7.0")
+    implementation("androidx.fragment:fragment-ktx:1.5.6")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.biometric:biometric:1.1.0")
 
