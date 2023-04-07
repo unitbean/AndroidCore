@@ -3,6 +3,7 @@ package com.ub.utils.ui.main
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,9 @@ import com.ub.utils.di.services.api.responses.PostResponse
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
+import com.ub.utils.createFileWithContent
+import com.ub.utils.deleteFile
+import com.ub.utils.getImage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -76,10 +80,25 @@ class MainViewModel @AssistedInject constructor(
         withUseCaseScope(
             onError = { e -> LogUtils.e("NetworkTest", e.message, e) }
         ) {
-            val network = CNetwork(context, "https://google.com")
+            val network = CNetwork(context)
             network.startListener().collect {
                 _connectivity.emit(it)
             }
+        }
+    }
+
+    fun cachePickedImage(uri: Uri) {
+        withUseCaseScope(
+            onError = { e -> LogUtils.e("CacheImage", e.message, e) }
+        ) {
+            val nameWithExtension = context.getFileNameFromUri(uri)
+            val savedFile = createFileWithContent(
+                inputContent = context.contentResolver.openInputStream(uri) ?: return@withUseCaseScope,
+                nameWithExtension = nameWithExtension ?: return@withUseCaseScope,
+                folder = context.cacheDir
+            )
+            val bitmap = context.getImage(Uri.fromFile(savedFile))
+            _image.emit(bitmap)
         }
     }
 
@@ -87,6 +106,15 @@ class MainViewModel @AssistedInject constructor(
         withUseCaseScope {
             val isEquals = interactor.isEquals()
             _isEquals.emit(isEquals)
+        }
+    }
+
+    fun removeCachedFiles() {
+        val removedList = context.cacheDir?.listFiles()?.map { file ->
+             context.deleteFile(file, "${context.packageName}.core.fileprovider")
+        }
+        removedList?.firstOrNull { false }?.let {
+            LogUtils.e("RemoveCached", "Cached files was not be deleted completely")
         }
     }
 

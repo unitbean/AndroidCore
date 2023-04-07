@@ -175,22 +175,6 @@ fun <T : ViewModel>provideSavedFactory(
         }
     }
 
-fun Context.getFileNameFromUri(uri: Uri): String? {
-    return this.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        cursor.moveToFirst()
-        val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        cursor.getString(columnIndex)
-    }
-}
-
-fun Context.getFileSizeFromUri(uri: Uri): Long? {
-    return this.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        cursor.moveToFirst()
-        val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-        cursor.getLong(columnIndex)
-    }
-}
-
 @Suppress("DEPRECATION")
 fun <T : Parcelable> Bundle.getParcelableCompat(key: String, clazz: Class<T>): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

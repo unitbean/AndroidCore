@@ -53,12 +53,18 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         }
     }
 
+    private val imagePickerCaller = registerForActivityResult(ActivityResultContracts.GetContent()) { image ->
+        viewModel.cachePickedImage(image ?: return@registerForActivityResult)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
 
         binding?.btnTextAction?.setOnClickListener(this)
         binding?.btnTextPush?.setOnClickListener(this)
+        binding?.btnPickImage?.setOnClickListener(this)
+        binding?.btnClearCache?.setOnClickListener(this)
 
         launchAndRepeatWithViewLifecycle {
             launch {
@@ -154,7 +160,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun showPush() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             permissionCaller.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
             viewModel.generatePushContent()
@@ -179,6 +185,8 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         when (v?.id) {
             R.id.btn_text_action -> hideTest()
             R.id.btn_text_push -> showPush()
+            R.id.btn_pick_image -> imagePickerCaller.launch("image/*")
+            R.id.btn_clear_cache -> viewModel.removeCachedFiles()
         }
     }
 }

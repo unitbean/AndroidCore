@@ -8,6 +8,22 @@
     tools:context=".ui.main.MainFragment">
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_clear_cache"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:text="CLEAR CACHE"
+        app:layout_constraintBottom_toTopOf="@id/btn_pick_image"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_pick_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:text="PICK IMAGE"
+        app:layout_constraintBottom_toTopOf="@id/btn_text_push"/>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_text_push"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -61,8 +61,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * 2. А на API <= [Build.VERSION_CODES.KITKAT] сценарии 2 и 3 вообще не работают, так как у [NetworkInfo] нет соответсвующего API
  */
 class CNetwork(
-    private val context: Context,
-    private val hostName: String? = null
+    private val context: Context
 ) {
     private val manager: ConnectivityManager? by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager

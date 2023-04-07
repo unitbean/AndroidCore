@@ -72,6 +72,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$verLifecycle")
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
     implementation("com.github.moxy-community:moxy:$verMoxy")
     implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
