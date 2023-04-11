@@ -1,3 +1,4 @@
+import Common.getLocalProperty
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 
 plugins {
@@ -11,7 +12,7 @@ android {
     compileSdk = 33
     defaultConfig {
         applicationId = "com.ub.utils"
-        minSdk = 16
+        minSdk = 21
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -21,30 +22,30 @@ android {
         getByName("debug") {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("String", "YANDEX_KEY", "\"${getLocalProperty(key = "yandex.key", file = "local.properties")}\"")
         }
 
         getByName("release") {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("String", "YANDEX_KEY", "\"${getLocalProperty(key = "yandex.key", file = "local.properties")}\"")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
     buildFeatures {
         viewBinding = true
     }
 }
 
-val verMoxy = "2.2.2"
-val verDagger = "2.45"
-val verRetrofit = "2.9.0"
-val verCoroutines = "1.6.4"
-val verLifecycle = "2.6.1"
-
 dependencies {
     implementation(project(":android"))
+    implementation(project(":yandex"))
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     // testing
@@ -53,8 +54,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // kapts
-    kapt("com.github.moxy-community:moxy-compiler:$verMoxy")
-    kapt("com.google.dagger:dagger-compiler:$verDagger")
+    kapt("com.github.moxy-community:moxy-compiler:${Deps.moxyVer}")
+    kapt("com.google.dagger:dagger-compiler:${Deps.daggerVer}")
 
     // android x
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -70,19 +71,19 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
 
     // moxy
-    implementation("com.github.moxy-community:moxy:$verMoxy")
-    implementation("com.github.moxy-community:moxy-androidx:$verMoxy")
-    implementation("com.github.moxy-community:moxy-material:$verMoxy")
-    implementation("com.github.moxy-community:moxy-ktx:$verMoxy")
+    implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
+    implementation("com.github.moxy-community:moxy-androidx:${Deps.moxyVer}")
+    implementation("com.github.moxy-community:moxy-material:${Deps.moxyVer}")
+    implementation("com.github.moxy-community:moxy-ktx:${Deps.moxyVer}")
 
     // lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$verLifecycle")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
 
     // retrofit 2
-    implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
-    implementation("com.squareup.retrofit2:converter-gson:$verRetrofit")
-    implementation("com.squareup.retrofit2:adapter-rxjava2:$verRetrofit")
+    implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
+    implementation("com.squareup.retrofit2:converter-gson:${Deps.retrofitVer}")
+    implementation("com.squareup.retrofit2:adapter-rxjava2:${Deps.retrofitVer}")
 
     // logging interceptor
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
@@ -92,9 +93,11 @@ dependencies {
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
 
     // dagger 2
-    implementation("com.google.dagger:dagger:$verDagger")
+    implementation("com.google.dagger:dagger:${Deps.daggerVer}")
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$verCoroutines")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
+
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
 }

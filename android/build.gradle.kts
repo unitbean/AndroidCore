@@ -1,10 +1,9 @@
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import com.vanniktech.maven.publish.SonatypeHost
-import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import Common.getLocalProperty
 
 plugins {
     id("com.android.library")
-    id("org.jetbrains.dokka")
     id("com.vanniktech.maven.publish")
     kotlin("android")
 }
@@ -14,9 +13,13 @@ tasks.dokkaJavadoc.configure {
 }
 
 mavenPublishing {
+    coordinates(
+        groupId = getLocalProperty(key = "GROUP"),
+        artifactId = "androidcore",
+        version = getLocalProperty(key = "VERSION_NAME_CORE")
+    )
     signAllPublications()
     publishToMavenCentral(SonatypeHost.S01)
-    AndroidSingleVariantLibrary()
 }
 
 android {
@@ -46,15 +49,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
     buildFeatures {
         buildConfig = false
     }
 }
-
-val verMoxy = "2.2.2"
-val verCoroutines = "1.6.4"
-val verRetrofit = "2.9.0"
-val verLifecycle = "2.6.1"
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
@@ -62,19 +63,19 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$verCoroutines")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
 
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$verLifecycle")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$verLifecycle")
+    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.3.6")
-    implementation("com.github.moxy-community:moxy:$verMoxy")
-    implementation("com.squareup.retrofit2:retrofit:$verRetrofit")
+    implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
+    implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$verCoroutines")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
 }

@@ -8,4 +8,8 @@
         android:id="@+id/menu_biometry"
         android:title="@string/menu_title_biometry"
         android:icon="@drawable/ic_vector_biometry"/>
+    <item
+        android:id="@+id/menu_yandex"
+        android:title="@string/menu_title_maps"
+        android:icon="@drawable/ic_vector_map"/>
 </menu>

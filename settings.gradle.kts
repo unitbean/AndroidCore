@@ -14,4 +14,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "AndroidCore"
-include(":app", ":android")
+include(":app", ":android", ":yandex")

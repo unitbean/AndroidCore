@@ -2,11 +2,13 @@ package com.ub.utils.ui.host
 
 import android.os.Bundle
 import android.view.View
+import com.ub.utils.BuildConfig
 import com.ub.utils.NavigationRootFragment
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentHostBinding
 import com.ub.utils.ui.biometric.BiometricFragment
 import com.ub.utils.ui.main.MainFragment
+import com.ub.yandex.YandexMapFragment
 
 class HostFragment : NavigationRootFragment(R.layout.fragment_host) {
 
@@ -28,6 +30,14 @@ class HostFragment : NavigationRootFragment(R.layout.fragment_host) {
                 R.id.menu_biometry -> switchToFragment(
                     tag = "navigation#2",
                     fragmentInstance = BiometricFragment()
+                )
+                R.id.menu_yandex -> switchToFragment(
+                    tag = "navigation#3",
+                    fragmentInstance = YandexMapFragment().apply {
+                        apiKeyDelegate.setApiKey(
+                            BuildConfig.YANDEX_KEY
+                        )
+                    }
                 )
             }
 
