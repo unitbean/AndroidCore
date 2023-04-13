@@ -20,13 +20,80 @@ class YandexMapFragment : Fragment() {
     private var latestCameraTilt: Float? = null
     private var latestCameraPosition: Point? = null
 
-    private val mapInitializationDelegate by mapInitializer { apiKey ->
+    private val mapInitializationDelegate by mapInitializer { apiKey, cameraPosition ->
         MapKitFactory.setApiKey(apiKey)
         MapKitFactory.initialize(requireContext())
+        latestCameraZoom = cameraPosition?.zoom
+        latestCameraAzimuth = cameraPosition?.azimuth
+        latestCameraTilt = cameraPosition?.tilt
+        latestCameraPosition = cameraPosition?.target
     }
 
-    val apiKeyDelegate: ApiKeyDelegate = mapInitializationDelegate
     private val apiReaderDelegate: ApiKeyReader = mapInitializationDelegate
+    private var mapReadyDelegate: YandexMapReadyDelegate? = null
+
+    val apiKeyDelegate: ApiKeyDelegate = mapInitializationDelegate
+    val initialLocationDelegate: YandexInitialCameraPositionDelegate = mapInitializationDelegate
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        if (savedInstanceState?.containsKey(SAVED_API_KEY) == true) {
+            apiKeyDelegate.setApiKey(savedInstanceState.getString(SAVED_API_KEY, null))
+        }
+        mapInitializationDelegate.initialize()
+        if (savedInstanceState?.containsKey(SAVED_LATITUDE) == true
+            && savedInstanceState.containsKey(SAVED_LONGITUDE)) {
+            latestCameraPosition = Point(
+                savedInstanceState.getDouble(SAVED_LATITUDE),
+                savedInstanceState.getDouble(SAVED_LONGITUDE)
+            )
+        }
+        if (savedInstanceState?.containsKey(SAVED_ZOOM) == true) {
+            latestCameraZoom = savedInstanceState.getFloat(SAVED_ZOOM)
+        }
+        if (savedInstanceState?.containsKey(SAVED_AZIMUTH) == true) {
+            latestCameraAzimuth = savedInstanceState.getFloat(SAVED_AZIMUTH)
+        }
+        if (savedInstanceState?.containsKey(SAVED_TILT) == true) {
+            latestCameraTilt = savedInstanceState.getFloat(SAVED_TILT)
+        }
+        return MapView(inflater.context, )
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        latestCameraPosition?.let { position ->
+            if (latestCameraZoom == null) return
+            mapView?.map?.move(
+                CameraPosition(
+                    Point(position.latitude, position.longitude),
+                    latestCameraZoom ?: 0F,
+                    latestCameraAzimuth ?: 0F,
+                    latestCameraTilt ?:0F
+                )
+            )
+            latestCameraPosition = null
+            latestCameraZoom = null
+            latestCameraAzimuth = null
+            latestCameraTilt = null
+        }
+        mapView?.map?.let { mapReadyDelegate?.onMapReady(it) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapView?.let { map ->
+            map.map.cameraPosition.run {
+                latestCameraZoom = zoom
+                latestCameraPosition = target
+                latestCameraAzimuth = azimuth
+                latestCameraTilt = tilt
+            }
+        }
+    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -56,65 +123,6 @@ class YandexMapFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        if (savedInstanceState?.containsKey(SAVED_API_KEY) == true) {
-            apiKeyDelegate.setApiKey(savedInstanceState.getString(SAVED_API_KEY, null))
-        }
-        mapInitializationDelegate.initialize()
-        if (savedInstanceState?.containsKey(SAVED_LATITUDE) == true
-            && savedInstanceState.containsKey(SAVED_LONGITUDE)) {
-            latestCameraPosition = Point(
-                savedInstanceState.getDouble(SAVED_LATITUDE),
-                savedInstanceState.getDouble(SAVED_LONGITUDE)
-            )
-        }
-        if (savedInstanceState?.containsKey(SAVED_ZOOM) == true) {
-            latestCameraZoom = savedInstanceState.getFloat(SAVED_ZOOM)
-        }
-        if (savedInstanceState?.containsKey(SAVED_AZIMUTH) == true) {
-            latestCameraAzimuth = savedInstanceState.getFloat(SAVED_AZIMUTH)
-        }
-        if (savedInstanceState?.containsKey(SAVED_TILT) == true) {
-            latestCameraTilt = savedInstanceState.getFloat(SAVED_TILT)
-        }
-        return MapView(inflater.context)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        latestCameraPosition?.let { position ->
-            if (latestCameraZoom == null) return
-            mapView?.map?.move(
-                CameraPosition(
-                    Point(position.latitude, position.longitude),
-                    latestCameraZoom ?: 0F,
-                    latestCameraAzimuth ?: 0F,
-                    latestCameraTilt ?:0F
-                )
-            )
-            latestCameraPosition = null
-            latestCameraZoom = null
-            latestCameraAzimuth = null
-            latestCameraTilt = null
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mapView?.let { map ->
-            map.map.cameraPosition.run {
-                latestCameraZoom = zoom
-                latestCameraPosition = target
-                latestCameraAzimuth = azimuth
-                latestCameraTilt = tilt
-            }
-        }
-    }
-
     override fun onLowMemory() {
         super.onLowMemory()
         mapView?.onMemoryWarning()
@@ -130,6 +138,10 @@ class YandexMapFragment : Fragment() {
         super.onStart()
         mapView?.onStart()
         MapKitFactory.getInstance().onStart()
+    }
+
+    fun setMapReady(delegate: YandexMapReadyDelegate) {
+        this.mapReadyDelegate = delegate
     }
 
     private companion object {
