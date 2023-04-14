@@ -68,6 +68,7 @@ class YandexMapFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         latestCameraPosition?.let { position ->
             if (latestCameraZoom == null) return
             mapView?.map?.move(
@@ -99,6 +100,7 @@ class YandexMapFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
         mapView?.let { map ->
             map.map.cameraPosition.run {
                 latestCameraZoom = zoom
