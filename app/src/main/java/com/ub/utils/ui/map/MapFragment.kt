@@ -25,6 +25,12 @@ class MapFragment : Fragment(R.layout.fragment_map), YandexMapReadyDelegate {
 
         binding = FragmentMapBinding.bind(view)
 
+        if (isMapIsHidden) {
+            binding?.showOrHideButton?.setText(R.string.map_show)
+        } else {
+            binding?.showOrHideButton?.setText(R.string.map_hide)
+        }
+
         binding?.showOrHideButton?.setOnClickListener {
             if (isMapIsHidden) {
                 binding?.showOrHideButton?.setText(R.string.map_hide)

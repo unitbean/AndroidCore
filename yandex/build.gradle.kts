@@ -5,6 +5,7 @@ plugins {
     id("com.android.library")
     id("com.vanniktech.maven.publish")
     kotlin("android")
+    id("kotlin-parcelize")
 }
 
 mavenPublishing {
@@ -57,4 +58,7 @@ android {
 
 dependencies {
     api("com.yandex.android:maps.mobile:4.3.1-lite")
+    implementation("androidx.fragment:fragment-ktx:1.5.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
 }
