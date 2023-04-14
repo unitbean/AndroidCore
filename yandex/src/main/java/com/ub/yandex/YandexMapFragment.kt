@@ -20,9 +20,11 @@ class YandexMapFragment : Fragment() {
     private var latestCameraTilt: Float? = null
     private var latestCameraPosition: Point? = null
 
-    private val mapInitializationDelegate by mapInitializer { apiKey, cameraPosition ->
+    private val mapInitializationDelegate by mapKitInitializer { apiKey ->
         MapKitFactory.setApiKey(apiKey)
         MapKitFactory.initialize(requireContext())
+    }
+    private val initialLocation by initialLocation { cameraPosition ->
         latestCameraZoom = cameraPosition?.zoom
         latestCameraAzimuth = cameraPosition?.azimuth
         latestCameraTilt = cameraPosition?.tilt
@@ -33,7 +35,7 @@ class YandexMapFragment : Fragment() {
     private var mapReadyDelegate: YandexMapReadyDelegate? = null
 
     val apiKeyDelegate: ApiKeyDelegate = mapInitializationDelegate
-    val initialLocationDelegate: YandexInitialCameraPositionDelegate = mapInitializationDelegate
+    val initialLocationDelegate: YandexInitialCameraPositionDelegate = initialLocation
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +52,8 @@ class YandexMapFragment : Fragment() {
                 savedInstanceState.getDouble(SAVED_LATITUDE),
                 savedInstanceState.getDouble(SAVED_LONGITUDE)
             )
+        } else {
+            initialLocation.setUpInitialLocation()
         }
         if (savedInstanceState?.containsKey(SAVED_ZOOM) == true) {
             latestCameraZoom = savedInstanceState.getFloat(SAVED_ZOOM)
@@ -60,11 +64,10 @@ class YandexMapFragment : Fragment() {
         if (savedInstanceState?.containsKey(SAVED_TILT) == true) {
             latestCameraTilt = savedInstanceState.getFloat(SAVED_TILT)
         }
-        return MapView(inflater.context, )
+        return MapView(inflater.context)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         latestCameraPosition?.let { position ->
             if (latestCameraZoom == null) return
             mapView?.map?.move(
@@ -96,7 +99,6 @@ class YandexMapFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
         mapView?.let { map ->
             map.map.cameraPosition.run {
                 latestCameraZoom = zoom

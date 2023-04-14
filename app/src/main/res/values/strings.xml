@@ -4,4 +4,7 @@
     <string name="menu_title_main">Главная</string>
     <string name="menu_title_biometry">Биометрия</string>
     <string name="menu_title_maps">Карты</string>
+
+    <string name="map_show">Показать карту</string>
+    <string name="map_hide">Скрыть карту</string>
 </resources>

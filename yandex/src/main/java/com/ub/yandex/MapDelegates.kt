@@ -34,16 +34,27 @@ interface YandexInitialCameraPositionDelegate {
 }
 
 /**
- * Map initializer delegate
+ * Map Kit initializer delegate
  */
-internal fun mapInitializer(mapInitializer: (String, CameraPosition?) -> Unit) = MapInitializerDelegate(mapInitializer)
+internal fun mapKitInitializer(mapInitializer: (String) -> Unit) = MapKitInitializerDelegate(mapInitializer)
 
-internal class MapInitializerDelegate(mapInitializer: (String, CameraPosition?) -> Unit) : ReadOnlyProperty<Fragment, MapInitializer> {
+internal fun initialLocation(initialLocation: (CameraPosition?) -> Unit) = InitialLocationDelegate(initialLocation)
 
-    private val initializer = MapInitializer(mapInitializer)
+internal class MapKitInitializerDelegate(mapInitializer: (String) -> Unit) : ReadOnlyProperty<Fragment, MapKitInitializer> {
 
-    override fun getValue(thisRef: Fragment, property: KProperty<*>): MapInitializer {
+    private val initializer = MapKitInitializer(mapInitializer)
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): MapKitInitializer {
         return initializer
+    }
+}
+
+internal class InitialLocationDelegate(initialLocation: (CameraPosition?) -> Unit) : ReadOnlyProperty<Fragment, InitialLocation> {
+
+    private val initialLocation = InitialLocation(initialLocation)
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): InitialLocation {
+        return initialLocation
     }
 }
 
@@ -51,11 +62,10 @@ internal interface ApiKeyReader {
     fun getApiKey(): String?
 }
 
-internal class MapInitializer(private val mapInitializer: (String, CameraPosition?) -> Unit): ApiKeyDelegate,
-    ApiKeyReader, YandexInitialCameraPositionDelegate {
+internal class MapKitInitializer(private val mapInitializer: (String) -> Unit): ApiKeyDelegate,
+    ApiKeyReader {
 
     private var apiKey: String? = null
-    private var cameraPosition: CameraPosition? = null
 
     override fun setApiKey(value: String) {
         this.apiKey = value
@@ -65,15 +75,10 @@ internal class MapInitializer(private val mapInitializer: (String, CameraPositio
         return apiKey
     }
 
-    override fun setInitialLocation(position: CameraPosition) {
-        this.cameraPosition = position
-    }
-
     fun initialize() {
         if (!mapStateInitialization) {
             mapInitializer.invoke(
-                apiKey ?: throw IllegalArgumentException("Please set apk key first"),
-                cameraPosition
+                apiKey ?: throw IllegalArgumentException("Please set apk key first")
             )
             mapStateInitialization = true
         }
@@ -81,5 +86,18 @@ internal class MapInitializer(private val mapInitializer: (String, CameraPositio
 
     companion object {
         private var mapStateInitialization: Boolean = false
+    }
+}
+
+internal class InitialLocation(private val initialLocationDelegate: (CameraPosition?) -> Unit) : YandexInitialCameraPositionDelegate {
+
+    private var cameraPosition: CameraPosition? = null
+
+    override fun setInitialLocation(position: CameraPosition) {
+        this.cameraPosition = position
+    }
+
+    fun setUpInitialLocation() {
+        initialLocationDelegate.invoke(cameraPosition)
     }
 }

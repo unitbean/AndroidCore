@@ -17,28 +17,42 @@ class MapFragment : Fragment(R.layout.fragment_map), YandexMapReadyDelegate {
 
     private var binding: FragmentMapBinding? = null
 
+    private val isMapIsHidden: Boolean
+        get() = childFragmentManager.fragments.size == 0
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentMapBinding.bind(view)
 
-        val map = (childFragmentManager.findFragmentById(R.id.map)) as YandexMapFragment?
-
-        map?.apiKeyDelegate?.setApiKey(
-            BuildConfig.YANDEX_KEY
-        )
-        map?.initialLocationDelegate?.setInitialLocation(
-            CameraPosition(
-                Point(
-                    48.701792,
-                    44.500053
-                ),
-                15F,
-                0F,
-                0F
-            )
-        )
-        map?.setMapReady(this)
+        binding?.showOrHideButton?.setOnClickListener {
+            if (isMapIsHidden) {
+                binding?.showOrHideButton?.setText(R.string.map_hide)
+                val fragmentToAdd = YandexMapFragment().apply {
+                    this.apiKeyDelegate.setApiKey(
+                        BuildConfig.YANDEX_KEY
+                    )
+                    this.initialLocationDelegate.setInitialLocation(
+                        CameraPosition(
+                            Point(48.701792, 44.500053),
+                            15F,
+                            0F,
+                            0F
+                        )
+                    )
+                    this.setMapReady(this@MapFragment)
+                }
+                childFragmentManager.beginTransaction()
+                    .add(R.id.map, fragmentToAdd)
+                    .commit()
+            } else {
+                binding?.showOrHideButton?.setText(R.string.map_show)
+                val existingFragment = binding?.map?.getFragment<YandexMapFragment>() ?: return@setOnClickListener
+                childFragmentManager.beginTransaction()
+                    .remove(existingFragment)
+                    .commit()
+            }
+        }
     }
 
     override fun onDestroyView() {
