@@ -8,14 +8,6 @@ import kotlin.reflect.KProperty
 
 /**
  * Delegate to getting ready to work with inititalized [Map] instance
- *
- * If [YandexMapFragment] is used with [androidx.fragment.app.FragmentContainerView],
- * this [YandexMapReadyDelegate] not useful, because [Map] instance is already available
- * in [Fragment.onViewCreated] callback
- *
- * This [YandexMapReadyDelegate] can be used mostly in working with
- * [androidx.fragment.app.FragmentTransaction] to handle lifecycle of [YandexMapFragment]
- * manually in code
  */
 @FunctionalInterface
 fun interface YandexMapReadyDelegate {
