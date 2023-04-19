@@ -5,11 +5,9 @@ package com.ub.utils
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.provider.OpenableColumns
 import android.util.Property
 import android.util.TypedValue
 import android.view.View
@@ -44,18 +42,6 @@ fun View.dpToPx(dp: Int): Float {
 fun Context.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), this.resources.displayMetrics)
 }
-
-@Deprecated("Use AndroidX Core-ktx method View.isVisible = true instead", level = DeprecationLevel.ERROR)
-inline val View.visible: View
-    get() = throw UnsupportedOperationException("Please remove this method. See lint hints")
-
-@Deprecated("Use AndroidX Core-ktx method View.isInvisible = true instead", level = DeprecationLevel.ERROR)
-inline val View.invisible: View
-    get() = throw UnsupportedOperationException("Please remove this method. See lint hints")
-
-@Deprecated("Use AndroidX Core-ktx method View.isGone = true instead", level = DeprecationLevel.ERROR)
-inline val View.gone: View
-    get() = throw UnsupportedOperationException("Please remove this method. See lint hints")
 
 fun AlertDialog.isNotShowing(): Boolean = !isShowing
 
@@ -176,6 +162,13 @@ fun <T : ViewModel>provideSavedFactory(
     }
 
 @Suppress("DEPRECATION")
+@Deprecated(
+    message = "Use BundleCompat.getParcelable from androidx.core:core:1.10.0",
+    replaceWith = ReplaceWith(
+        expression = "getParcelable(this, key, clazz)",
+        imports = ["androidx.core.os.BundleCompat.getParcelable"]
+    )
+)
 fun <T : Parcelable> Bundle.getParcelableCompat(key: String, clazz: Class<T>): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelable(key, clazz)
