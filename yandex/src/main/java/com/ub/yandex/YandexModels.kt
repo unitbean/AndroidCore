@@ -3,6 +3,8 @@ package com.ub.yandex
 import android.os.Parcelable
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.CameraUpdateReason
+import com.yandex.mapkit.map.Map
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -30,3 +32,13 @@ internal class CameraPositionParcelable(
         return CameraPosition(Point(target.latitude, target.longitude), zoom, azimuth, tilt)
     }
 }
+
+/**
+ * Object that represents event from [com.yandex.mapkit.map.CameraListener]
+ */
+data class YandexCameraEvent(
+    val map: Map,
+    val cameraPosition: CameraPosition,
+    val cameraUpdateReason: CameraUpdateReason,
+    val isFinished: Boolean
+)

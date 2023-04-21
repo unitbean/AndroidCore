@@ -25,8 +25,7 @@ class YandexMapFragment : Fragment() {
     }
 
     private val apiReaderDelegate: ApiKeyReader = mapInitializationDelegate
-    private var mapReadyDelegate: YandexMapReadyDelegate? = null
-
+    private val mapReadyCallbacks = mutableListOf<YandexMapReadyCallback>()
 
     val apiKeyDelegate: ApiKeyDelegate = mapInitializationDelegate
     val initialLocationDelegate: YandexInitialCameraPositionDelegate = initialLocation
@@ -51,7 +50,14 @@ class YandexMapFragment : Fragment() {
         viewModel.savedCameraPosition?.let { position ->
             mapView?.map?.move(position)
         }
-        mapView?.map?.let { mapReadyDelegate?.onMapReady(it) }
+        mapView?.let { mapView ->
+            val iterator = mapReadyCallbacks.listIterator()
+            while (iterator.hasNext()) {
+                val callback = iterator.next()
+                callback.onMapReady(mapView.map)
+                iterator.remove()
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -88,7 +94,12 @@ class YandexMapFragment : Fragment() {
         MapKitFactory.getInstance().onStart()
     }
 
-    fun setMapReady(delegate: YandexMapReadyDelegate) {
-        this.mapReadyDelegate = delegate
+    /**
+     * Sets a callback that's invoked when this map has finished rendering. The callback will only be invoked once.
+     *
+     * If this method is called when the map is fully rendered, the callback will be invoked immediately.
+     */
+    fun setMapReady(callback: YandexMapReadyCallback) {
+        this.mapReadyCallbacks.add(callback)
     }
 }

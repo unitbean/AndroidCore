@@ -12,6 +12,17 @@
         android:layout_height="match_parent"
         tools:name="com.ub.yandex.YandexMapFragment"/>
 
+    <TextView
+        android:id="@+id/displayed_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="46dp"
+        android:textSize="24sp"
+        android:layout_marginHorizontal="16dp"
+        android:textColor="@android:color/black"
+        android:gravity="center_horizontal"
+        tools:text="@tools:sample/full_names"/>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/show_or_hide_button"
         android:layout_width="wrap_content"

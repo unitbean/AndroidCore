@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
  * Delegate to getting ready to work with inititalized [Map] instance
  */
 @FunctionalInterface
-fun interface YandexMapReadyDelegate {
+fun interface YandexMapReadyCallback {
     fun onMapReady(yandexMap: Map)
 }
 
