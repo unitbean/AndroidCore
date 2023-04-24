@@ -5,6 +5,9 @@
     <string name="menu_title_biometry">Биометрия</string>
     <string name="menu_title_maps">Карты</string>
 
+    <string name="hide_text">Скрыть текст</string>
+    <string name="show_text">Показать текст</string>
+
     <string name="map_show">Показать карту</string>
     <string name="map_hide">Скрыть карту</string>
 </resources>

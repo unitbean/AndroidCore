@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,7 +21,6 @@ import com.ub.utils.BaseApplication
 import com.ub.utils.CNetwork
 import com.ub.utils.R
 import com.ub.utils.UbNotify
-import com.ub.utils.UbUtils
 import com.ub.utils.databinding.FragmentMainBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.utils.provideFactory
@@ -142,20 +142,18 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun onShowConnectivityChange(state: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = when (state) {
-                CNetwork.NetworkState.ESTABLISH -> Color.MAGENTA
-                CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)
-                CNetwork.NetworkState.DISABLE -> Color.RED
-                CNetwork.NetworkState.CAPTIVE -> Color.GREEN
-                else -> Color.YELLOW
-            }
+        requireActivity().window.statusBarColor = when (state) {
+            CNetwork.NetworkState.ESTABLISH -> Color.MAGENTA
+            CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)
+            CNetwork.NetworkState.DISABLE -> Color.RED
+            CNetwork.NetworkState.CAPTIVE -> Color.GREEN
+            else -> Color.YELLOW
         }
     }
 
     private fun onIsEquals(equals: Boolean) {
         AlertDialog.Builder(requireContext())
-            .setMessage("${UbUtils.getString(R.string.app_name)}. Equals $equals")
+            .setMessage("${requireContext().getString(R.string.app_name)}. Equals $equals")
             .show()
     }
 
@@ -168,12 +166,12 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun hideTest() {
-        if (binding?.tvText?.visibility == View.GONE) {
+        if (binding?.tvText?.isGone == true) {
             binding?.tvText?.isVisible = true
-            binding?.btnTextAction?.text = "HIDE TEXT"
+            binding?.btnTextAction?.setText(R.string.hide_text)
         } else {
-            binding?.tvText?.isVisible = false
-            binding?.btnTextAction?.text = "SHOW TEXT"
+            binding?.tvText?.isGone = true
+            binding?.btnTextAction?.setText(R.string.show_text)
         }
     }
 

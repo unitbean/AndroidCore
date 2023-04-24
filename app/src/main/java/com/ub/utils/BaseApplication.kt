@@ -12,8 +12,6 @@ class BaseApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        UbUtils.init(this)
-
         initDI()
     }
 
@@ -31,7 +29,6 @@ class BaseApplication : Application() {
         fun createMainComponent(): MainComponent {
             return DaggerMainComponent.builder()
                 .appComponent(appComponent)
-                .mainModule(MainModule)
                 .build()
         }
     }

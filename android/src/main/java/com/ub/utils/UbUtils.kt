@@ -254,12 +254,12 @@ fun openSoftKeyboard(context: Context, view: View) {
 fun openMarket(context: Context) : Boolean {
     val uri = Uri.parse("market://details?id=" + context.packageName)
     val market = Intent(Intent.ACTION_VIEW, uri)
-    return if (context.packageManager.resolveActivity(market, 0) != null) {
+    return if (market.resolveActivity(context.packageManager) != null) {
         context.startActivity(market)
         true
     } else {
         val browser = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}"))
-        if (context.packageManager.resolveActivity(browser, 0) != null) {
+        if (browser.resolveActivity(context.packageManager) != null) {
             context.startActivity(browser)
             true
         } else {
@@ -281,7 +281,7 @@ fun openMarket(context: Context) : Boolean {
 )
 fun openLocationExternal(context: Context, location: Location, name: String? = null, appNotFoundCallback: (() -> Unit)? = null) {
     val mapIntent = createOpenLocationExternalIntent(location, name)
-    if (context.packageManager.resolveActivity(mapIntent, 0) != null) {
+    if (mapIntent.resolveActivity(context.packageManager) != null) {
         context.startActivity(mapIntent)
     } else {
         appNotFoundCallback?.invoke()
