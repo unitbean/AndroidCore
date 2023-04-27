@@ -2,6 +2,7 @@
 
 package com.ub.utils
 
+import android.Manifest.permission.ACCESS_NETWORK_STATE
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,13 +18,15 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED
 import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
 import android.net.NetworkCapabilities.TRANSPORT_BLUETOOTH
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
-import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.net.NetworkCapabilities.TRANSPORT_USB
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.net.NetworkInfo
 import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.annotation.StringDef
+import androidx.core.content.ContextCompat
 import com.ub.utils.CNetwork.NetworkState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -64,11 +67,12 @@ class CNetwork(
     private val context: Context
 ) {
     private val manager: ConnectivityManager? by lazy {
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        ContextCompat.getSystemService(context, ConnectivityManager::class.java)
     }
 
     @NetworkState
     @Suppress("DEPRECATION")
+    @RequiresPermission(value = ACCESS_NETWORK_STATE)
     fun startListener(): Flow<String> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             callbackFlow {
@@ -111,7 +115,7 @@ class CNetwork(
                     }
                 }
                 val request = NetworkRequest.Builder().build()
-                manager?.requestNetwork(request, callback)
+                manager?.registerNetworkCallback(request, callback)
 
                 awaitClose {
                     manager?.unregisterNetworkCallback(callback)
@@ -121,8 +125,7 @@ class CNetwork(
             callbackFlow {
                 val networkReceiver: BroadcastReceiver by lazy {
                     object : BroadcastReceiver() {
-                        @Suppress("DEPRECATION")
-                        @SuppressLint("MissingPermission")
+                        @RequiresPermission(value = ACCESS_NETWORK_STATE)
                         override fun onReceive(context: Context, intent: Intent) {
                             trySend(
                                 if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
