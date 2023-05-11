@@ -12,6 +12,7 @@ import com.ub.utils.BaseApplication
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentBiometricBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
+import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
 import java.util.Arrays
 
@@ -55,6 +56,11 @@ class BiometricFragment : Fragment(R.layout.fragment_biometric) {
                 binding?.doEncrypt?.isEnabled = text?.isNotEmpty() == true
             }
         )
+        binding?.root?.applyInsetter {
+            type(statusBars = true) {
+                padding()
+            }
+        }
 
         launchAndRepeatWithViewLifecycle {
             launch {
@@ -62,7 +68,7 @@ class BiometricFragment : Fragment(R.layout.fragment_biometric) {
                     binding?.inputField?.isEnabled = isAvailable
                     if (!isAvailable) {
                         binding?.errors?.isVisible = true
-                        binding?.errors?.text = "Biometry is not available"
+                        binding?.errors?.setText(R.string.biometry_is_not_available)
                     }
                 }
             }

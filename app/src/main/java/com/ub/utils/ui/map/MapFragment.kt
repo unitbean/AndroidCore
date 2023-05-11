@@ -17,6 +17,7 @@ import com.ub.yandex.mapIdleFlow
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.Map
+import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
@@ -44,6 +45,12 @@ class MapFragment : Fragment(R.layout.fragment_map), YandexMapReadyCallback {
             binding?.showOrHideButton?.setText(R.string.map_show)
         } else {
             binding?.showOrHideButton?.setText(R.string.map_hide)
+        }
+
+        binding?.displayedLocation?.applyInsetter {
+            type(statusBars = true) {
+                margin()
+            }
         }
 
         binding?.showOrHideButton?.setOnClickListener {

@@ -99,5 +99,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
 
+    implementation("dev.chrisbanes.insetter:insetter:0.6.1")
+
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.10")
 }

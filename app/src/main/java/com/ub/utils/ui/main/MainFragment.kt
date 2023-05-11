@@ -3,18 +3,21 @@ package com.ub.utils.ui.main
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.ub.utils.BaseApplication
@@ -25,6 +28,8 @@ import com.ub.utils.databinding.FragmentMainBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.utils.provideFactory
 import com.ub.utils.spannableBuilder
+import dev.chrisbanes.insetter.Insetter
+import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
 import java.util.Random
 
@@ -34,7 +39,8 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         val images: Array<String> by lazy {
             arrayOf(
                 "https://tagline.ru/file/company/logo/unitbean-logo_tagline.png",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Kotlin_logo_2021.svg/2880px-Kotlin_logo_2021.svg.png"
+                "https://kotlinlang.org/docs/images/kotlin-logo.png",
+                "https://developer.android.com/static/images/brand/Android_Robot_200.png"
             )
         }
         provideFactory {
@@ -61,10 +67,27 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
 
-        binding?.btnTextAction?.setOnClickListener(this)
         binding?.btnTextPush?.setOnClickListener(this)
         binding?.btnPickImage?.setOnClickListener(this)
         binding?.btnClearCache?.setOnClickListener(this)
+
+        binding?.root?.applyInsetter {
+            type(statusBars = true) {
+                padding()
+            }
+        }
+
+        binding?.root?.let { rootView ->
+            Insetter.builder()
+                .setOnApplyInsetsListener { insetView, insets, _ ->
+                    val topInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+                    binding?.statuses?.updateLayoutParams<MarginLayoutParams> {
+                        this.height = topInsets
+                    }
+                    insetView.updatePadding(top = topInsets)
+                }
+                .applyToView(rootView)
+        }
 
         launchAndRepeatWithViewLifecycle {
             launch {
@@ -142,12 +165,19 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun onShowConnectivityChange(state: String) {
-        requireActivity().window.statusBarColor = when (state) {
-            CNetwork.NetworkState.ESTABLISH -> Color.MAGENTA
-            CNetwork.NetworkState.ACTIVE -> ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)
-            CNetwork.NetworkState.DISABLE -> Color.RED
-            CNetwork.NetworkState.CAPTIVE -> Color.GREEN
-            else -> Color.YELLOW
+        binding?.statuses?.apply {
+            removeAllViews()
+            val connectivityIcon = when (state) {
+                CNetwork.NetworkState.ESTABLISH -> ResourcesCompat.getDrawable(resources, R.drawable.outline_hourglass_empty_24, context?.theme)
+                CNetwork.NetworkState.ACTIVE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_signal_cellular_alt_24, context?.theme)
+                CNetwork.NetworkState.DISABLE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_error_outline_24, context?.theme)
+                CNetwork.NetworkState.CAPTIVE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_login_24, context?.theme)
+                else -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_device_unknown_24, context?.theme)
+            }
+            val connectivity = ImageView(requireContext()).apply {
+                setImageDrawable(connectivityIcon)
+            }
+            addView(connectivity)
         }
     }
 
@@ -165,23 +195,12 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         }
     }
 
-    private fun hideTest() {
-        if (binding?.tvText?.isGone == true) {
-            binding?.tvText?.isVisible = true
-            binding?.btnTextAction?.setText(R.string.hide_text)
-        } else {
-            binding?.tvText?.isGone = true
-            binding?.btnTextAction?.setText(R.string.show_text)
-        }
-    }
-
     private fun showImage(image: Bitmap) {
         binding?.ivImage?.setImageBitmap(image)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.btn_text_action -> hideTest()
             R.id.btn_text_push -> showPush()
             R.id.btn_pick_image -> imagePickerCaller.launch("image/*")
             R.id.btn_clear_cache -> viewModel.removeCachedFiles()

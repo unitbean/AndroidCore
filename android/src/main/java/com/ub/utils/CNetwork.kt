@@ -1,9 +1,8 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "DEPRECATION")
 
 package com.ub.utils
 
 import android.Manifest.permission.ACCESS_NETWORK_STATE
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,6 +14,7 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL
 import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED
 import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED
+import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN
 import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
 import android.net.NetworkCapabilities.TRANSPORT_BLUETOOTH
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
@@ -114,7 +114,8 @@ class CNetwork(
                         )
                     }
                 }
-                val request = NetworkRequest.Builder().build()
+                val request = NetworkRequest.Builder()
+                    .build()
                 manager?.registerNetworkCallback(request, callback)
 
                 awaitClose {

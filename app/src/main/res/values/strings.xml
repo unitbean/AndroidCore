@@ -5,9 +5,17 @@
     <string name="menu_title_biometry">Биометрия</string>
     <string name="menu_title_maps">Карты</string>
 
-    <string name="hide_text">Скрыть текст</string>
-    <string name="show_text">Показать текст</string>
-
     <string name="map_show">Показать карту</string>
     <string name="map_hide">Скрыть карту</string>
+
+    <string name="clear_cache">Очистить кэш</string>
+    <string name="pick_image">Выбрать изображение</string>
+    <string name="next_push">Создать пуш</string>
+
+    <string name="biometry_is_not_available">Биометрия не доступна</string>
+
+    <string name="text_to_encrypt">Текст к шифрованию</string>
+    <string name="encrypt_action">Зашифровать</string>
+    <string name="encrypted_text_will_be_here">зашифрованный текст будет показан здесь</string>
+    <string name="decrypt_action">Дешифровать</string>
 </resources>
