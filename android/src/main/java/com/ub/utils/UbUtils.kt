@@ -230,9 +230,10 @@ fun isBrokenSamsungDevice(): Boolean {
  */
 fun hideSoftKeyboard(context: Context) {
     try {
-        val inputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow((context as Activity).currentFocus!!.windowToken, 0)
-        context.currentFocus!!.clearFocus()
+        val currentFocus = (context as? Activity)?.currentFocus
+        val inputMethodManager = ContextCompat.getSystemService(context, InputMethodManager::class.java)
+        inputMethodManager?.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        currentFocus?.clearFocus()
     } catch (e: NullPointerException) {
         LogUtils.e("KeyBoard", "NULL point exception in input method service")
     }
@@ -243,8 +244,8 @@ fun hideSoftKeyboard(context: Context) {
  * Открывает клавиатуру
  */
 fun openSoftKeyboard(context: Context, view: View) {
-    val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    val inputMethodManager = ContextCompat.getSystemService(context, InputMethodManager::class.java)
+    inputMethodManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
 }
 
 /**

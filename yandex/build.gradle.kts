@@ -57,8 +57,8 @@ android {
 }
 
 dependencies {
-    api("com.yandex.android:maps.mobile:4.3.1-lite")
-    implementation("androidx.fragment:fragment-ktx:1.5.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    api("com.yandex.android:maps.mobile:4.3.2-lite")
+    implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
 }
