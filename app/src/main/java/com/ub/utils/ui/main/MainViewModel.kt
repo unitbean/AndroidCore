@@ -7,14 +7,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
-import com.ub.utils.*
-import com.ub.utils.di.services.api.responses.PostResponse
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
-import com.ub.utils.createFileWithContent
-import com.ub.utils.deleteFile
-import com.ub.utils.getImage
+import com.ub.utils.*
+import com.ub.utils.di.services.api.responses.PostResponse
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

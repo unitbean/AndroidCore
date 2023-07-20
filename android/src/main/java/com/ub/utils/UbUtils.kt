@@ -1,5 +1,6 @@
 package com.ub.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
@@ -8,19 +9,38 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
+import android.util.MalformedJsonException
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import okhttp3.Callback
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.BufferedSource
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InputStream
-import java.net.NetworkInterface
+import java.net.ConnectException
+import java.net.InetAddress
+import java.net.URL
+import java.net.UnknownHostException
+import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -176,48 +196,89 @@ fun isValidEmail(email: String): Boolean {
 }
 
 /**
- * Получение текущего IP-адреса устройства
+ * Simple call to get IP address of device
+ *
+ * Alternate sources:
+ *
+ * [Herouku](https://api.ipify.org) IPv4
+ *
+ * [Herouku](https://api64.ipify.org) IPv4/v6
+ *
+ * [AWS](https://checkip.amazonaws.com)
+ *
+ * [SeeIP](https://api.seeip.org) IPv4/v6
+ *
+ * [IpInfo](https://ipinfo.io/ip)
+ *
+ * [IpEcho](https://ipecho.net/plain)
+ *
+ * [IfConfig](https://ifconfig.me/ip)
+ *
+ * [ICanHazIp](http://icanhazip.com)
+ *
+ * @see [java.net.InetAddress] for working with type of address
  */
-fun getIPAddress(useIPv4: Boolean): String {
-    try {
-        val interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
-        for (intf in interfaces) {
-            val addrs = Collections.list(intf.inetAddresses)
-            for (addr in addrs) {
-                if (!addr.isLoopbackAddress) {
-                    val sAddr = addr.hostAddress
-                    //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                    val isIPv4 = sAddr.indexOf(':') < 0
-
-                    if (useIPv4) {
-                        if (isIPv4)
-                            return sAddr
-                    } else {
-                        if (!isIPv4) {
-                            val delim = sAddr.indexOf('%') // drop ip6 zone suffix
-                            return if (delim < 0) sAddr.uppercase(Locale.getDefault()) else sAddr.substring(0, delim)
-                                .uppercase(Locale.getDefault())
-                        }
-                    }
-                }
+@RequiresPermission(Manifest.permission.INTERNET)
+suspend fun getMyPublicIp(source: String = "https://api64.ipify.org"): Result<InetAddress> =
+    withContext(Dispatchers.IO) {
+        try {
+            val connection = URL(source).openConnection()
+            connection.getInputStream().use { iStream ->
+                val buff = ByteArray(1024)
+                val read = iStream.read(buff)
+                Result.success(InetAddress.getByName(String(buff, 0, read)))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-    } catch (ex: Exception) {
-        LogUtils.e("IpAddress", ex.message ?: "IP Error", ex)
     }
-    // for now eat exceptions
-    return ""
-}
 
 /**
  * Определение, является ли ошибка сетевой
  */
-fun isNetworkException(error: Throwable): Boolean {
-    return error is IOException || error is HttpException
-}
+val Throwable.isNetworkException: Boolean
+    get() = this is ConnectException
+        || this is UnknownHostException
+        || this is TimeoutException
+        || this is MalformedJsonException
+        || this is HttpException
 
 /**
- * Check, if device is Samsung for showng DatePicker without bugs
+ * Safely extract content of [RequestBody]
+ *
+ * This may be very **hard** operation, please use it carefully
+ */
+val RequestBody.bodyToString: String?
+    get() = try {
+        val buffer = Buffer()
+        writeTo(buffer)
+        buffer.readUtf8()
+    } catch (e: IOException) {
+        null
+    } catch (e: AssertionError) {
+        null
+    }
+
+/**
+ * Safely extract content of [RequestBody]
+ *
+ * This may be very **hard** operation, please use it carefully
+ */
+val ResponseBody.bodyToString: String
+    get() {
+        val source: BufferedSource = source()
+        source.request(Long.MAX_VALUE)
+        val buffer = source.buffer
+        var charset: Charset = Charsets.UTF_8
+        val contentType: MediaType? = contentType()
+        if (contentType != null) {
+            charset = contentType.charset(Charsets.UTF_8) ?: charset
+        }
+        return buffer.clone().readString(charset)
+    }
+
+/**
+ * Check, if device is Samsung for showing DatePicker without bugs
  */
 fun isBrokenSamsungDevice(): Boolean {
     return (Build.MANUFACTURER.equals("samsung", ignoreCase = true)
@@ -237,7 +298,6 @@ fun hideSoftKeyboard(context: Context) {
     } catch (e: NullPointerException) {
         LogUtils.e("KeyBoard", "NULL point exception in input method service")
     }
-
 }
 
 /**
@@ -247,6 +307,25 @@ fun openSoftKeyboard(context: Context, view: View) {
     val inputMethodManager = ContextCompat.getSystemService(context, InputMethodManager::class.java)
     inputMethodManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
 }
+
+/**
+ * Show or hide keyboard in modern way with handle [androidx.core.graphics.Insets]
+ */
+fun Window.keyboardForView(view: View, isShow: Boolean) {
+    val controller = WindowCompat.getInsetsController(this, view)
+    if (isShow && view.isFocusable) {
+        controller.show(WindowInsetsCompat.Type.ime())
+        view.requestFocus()
+    } else if (!isShow && view == currentFocus) {
+        controller.hide(WindowInsetsCompat.Type.ime())
+        currentFocus?.clearFocus()
+    }
+}
+
+val Window.isKeyboardIsVisible: Boolean
+    get() = currentFocus?.let { focusedView ->
+        ViewCompat.getRootWindowInsets(focusedView)?.isVisible(WindowInsetsCompat.Type.ime())
+    } ?: false
 
 /**
  * Открывает страницу приложения в Google Play Market
