@@ -1,13 +1,14 @@
 package com.ub.utils
 
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType
 import okhttp3.ResponseBody
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
@@ -37,6 +38,7 @@ class RetryRefreshTest {
         )
     )
     private var tokenUpdateTask: Deferred<String>? = null
+    @OptIn(DelicateCoroutinesApi::class)
     private val updateToken: suspend (String) -> String = { refreshToken ->
         if (refreshToken != REFRESH_TOKEN) throw refreshTokenFailError
         if (tokenUpdateTask?.isActive != true) {

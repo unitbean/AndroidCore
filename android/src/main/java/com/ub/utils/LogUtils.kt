@@ -3,6 +3,9 @@ package com.ub.utils
 import androidx.annotation.Keep
 import android.util.Log
 
+@Deprecated(
+    message = "Use Timber dependency instead"
+)
 class LogUtils private constructor() {
 
     companion object {

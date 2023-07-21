@@ -1,10 +1,8 @@
 package com.ub.utils
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
-import android.content.res.Resources
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -14,12 +12,10 @@ import android.view.View
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresPermission
-import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -43,69 +39,6 @@ import java.util.*
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-
-@SuppressLint("StaticFieldLeak")
-object UbUtils {
-    private var context : Context? = null
-
-    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
-    fun init(context : Context) {
-        this.context = context
-    }
-
-    /**
-     * Получение строки с переданными параметрами для форматирования
-     */
-    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
-    @JvmStatic
-    fun getString(@StringRes id: Int, vararg parameters: Any) : String {
-        context?.let {
-            return it.getString(id, *parameters)
-        }
-
-        throw IllegalStateException("Context in UbUtils not initialized. Please call UbUtils.init in your Application instance")
-    }
-
-    /**
-     * Получение ресурсов
-     */
-    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
-    @JvmStatic
-    fun getResources(): Resources {
-        context?.let {
-            return it.resources
-        }
-
-        throw IllegalStateException("Context in UbUtils not initialized. Please call UbUtils.init in your Application instance")
-    }
-
-    /**
-     * Копирование текста в буфер обмена
-     * @return успешность операции
-     */
-    @Deprecated(message = "Please make a right configured DI with providing Context instance instead of calling this function")
-    @JvmStatic
-    fun copyTextToClipboard(text: String): Boolean {
-        return context?.copyTextToClipboard(text = text) ?: false
-    }
-
-    /**
-     * Получение высоты статус-бара в пикселях
-     * @return высота статус-бара в пикселях
-     */
-    @JvmStatic
-    @Deprecated(
-        message = "This function is not recommended to use. Please use WindowInsets instead of this"
-    )
-    fun getStatusBarHeight(): Int {
-        var result = 0
-        val resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId)
-        }
-        return result
-    }
-}
 
 fun Context.copyTextToClipboard(text: String, label: String = "text"): Boolean {
     val clipManager = ContextCompat.getSystemService(this, ClipboardManager::class.java)
@@ -349,26 +282,6 @@ fun openMarket(context: Context) : Boolean {
 }
 
 /**
- * Open location in external map application
- * If no application is found, [appNotFoundCallback] will be executed, if provided
- */
-@Deprecated(
-    message = "Use the more safe method createOpenLocationExternalIntent instead",
-    replaceWith = ReplaceWith(
-        expression = "createOpenLocationExternalIntent(location, name)",
-        imports = arrayOf("com.ub.utils.createOpenLocationExternalIntent")
-    )
-)
-fun openLocationExternal(context: Context, location: Location, name: String? = null, appNotFoundCallback: (() -> Unit)? = null) {
-    val mapIntent = createOpenLocationExternalIntent(location, name)
-    if (mapIntent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(mapIntent)
-    } else {
-        appNotFoundCallback?.invoke()
-    }
-}
-
-/**
  * Create the [Intent] to open location in external map application
  *
  * Recommended use this with wrap in [Intent.createChooser] for better UX
@@ -389,7 +302,7 @@ fun createOpenLocationExternalIntent(location: Location, name: String? = null): 
  * Определение, включена ли геолокация на устройстве
  */
 fun isGpsIsEnabled(context: Context): Boolean {
-    val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+    val manager = ContextCompat.getSystemService(context, LocationManager::class.java)
     val networkLocationEnabled = manager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
     val gpsLocationEnabled = manager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
 
