@@ -1,29 +1,39 @@
 package com.ub.utils.di.components
 
-import android.content.Context
+import android.app.Application
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.lifecycle.ViewModelProvider
 import com.ub.utils.di.CoreViewModelProvider
-import com.ub.utils.di.modules.CoreModule
 import com.ub.utils.di.services.ApiService
-import dagger.BindsInstance
-import dagger.Component
-import javax.inject.Singleton
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Provides
+import me.tatarka.inject.annotations.Scope
 
-@Singleton
-@Component(modules = [CoreModule::class])
-interface AppComponent {
+@AppScope
+@Component
+abstract class AppComponent(private val application: Application) {
 
-    val context: Context
+    abstract val apiService: ApiService
 
-    val apiService: ApiService
+    abstract val viewModelFactory: ViewModelProvider.Factory
 
-    val viewModelProvider: CoreViewModelProvider
+    protected val CoreViewModelProvider.bind: ViewModelProvider.Factory
+        @Provides @AppScope get() = this
 
-    @Component.Builder
-    interface Builder {
+    val context: Application
+        @Provides @AppScope get() = application
 
-        @BindsInstance
-        fun context(context: Context): Builder
-
-        fun build(): AppComponent
-    }
+    val dataStore: DataStore<Preferences>
+        @Provides @AppScope get() = PreferenceDataStoreFactory.create(
+            produceFile = {
+                context.preferencesDataStoreFile("expresspanda")
+            }
+        )
 }
+
+@Scope
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+annotation class AppScope

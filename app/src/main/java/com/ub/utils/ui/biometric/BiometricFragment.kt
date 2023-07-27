@@ -19,7 +19,7 @@ import java.util.Arrays
 class BiometricFragment : Fragment(R.layout.fragment_biometric) {
 
     private val viewModel: BiometricViewModel by viewModels {
-        BaseApplication.appComponent.viewModelProvider
+        BaseApplication.appComponent.viewModelFactory
     }
 
     private var binding: FragmentBiometricBinding? = null

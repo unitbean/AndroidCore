@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion
 plugins {
     id("com.android.application")
     kotlin("android")
-    kotlin("kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,6 +41,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    packaging {
+        resources.excludes += "DebugProbesKt.bin"
+    }
 }
 
 dependencies {
@@ -53,14 +56,10 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    // kapts
-    kapt("com.github.moxy-community:moxy-compiler:${Deps.moxyVer}")
-    kapt("com.google.dagger:dagger-compiler:${Deps.daggerVer}")
-
     // android x
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
@@ -69,12 +68,6 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.biometric:biometric:1.1.0")
-
-    // moxy
-    implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
-    implementation("com.github.moxy-community:moxy-androidx:${Deps.moxyVer}")
-    implementation("com.github.moxy-community:moxy-material:${Deps.moxyVer}")
-    implementation("com.github.moxy-community:moxy-ktx:${Deps.moxyVer}")
 
     // lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
@@ -92,8 +85,9 @@ dependencies {
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
 
-    // dagger 2
-    implementation("com.google.dagger:dagger:${Deps.daggerVer}")
+    // Kotlin Inject
+    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:${Deps.kotlinInjectVer}")
+    implementation("me.tatarka.inject:kotlin-inject-runtime:${Deps.kotlinInjectVer}")
 
     // kotlin coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")

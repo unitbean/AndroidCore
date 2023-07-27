@@ -2,9 +2,13 @@ package com.ub.utils.ui.main
 
 import android.graphics.Bitmap
 import com.ub.utils.containsIgnoreCase
+import com.ub.utils.di.components.MainScope
 import com.ub.utils.di.services.api.responses.PostResponse
+import me.tatarka.inject.annotations.Inject
 import java.util.*
 
+@Inject
+@MainScope
 class MainInteractor(private val repository: IMainRepository) {
 
     suspend fun loadPosts(): List<PostResponse> {

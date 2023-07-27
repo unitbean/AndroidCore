@@ -1,7 +1,6 @@
 package com.ub.utils.ui.biometric
 
-import android.annotation.SuppressLint
-import android.content.Context
+import android.app.Application
 import android.os.Build
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.util.Base64
@@ -10,7 +9,7 @@ import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ub.security.EncryptedData
 import com.ub.security.removeKeyFromKeystore
@@ -23,12 +22,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import me.tatarka.inject.annotations.Inject
 
-@SuppressLint("StaticFieldLeak")
+@Inject
 class BiometricViewModel(
-    private val context: Context,
+    application: Application,
     private val dataStore: DataStore<Preferences>,
-): ViewModel() {
+) : AndroidViewModel(application) {
 
     val encryptedValueFlow = dataStore.data.map { preferences ->
         EncryptedData(
@@ -52,7 +52,7 @@ class BiometricViewModel(
 
     init {
         withUseCaseScope {
-            val biometricManager = BiometricManager.from(context)
+            val biometricManager = BiometricManager.from(application)
             if (biometricManager.canAuthenticate(BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS) {
                 _biometryAvailabilityFlow.emit(true)
             } else {

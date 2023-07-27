@@ -2,10 +2,8 @@ package com.ub.utils
 
 import android.app.Application
 import com.ub.utils.di.components.AppComponent
-import com.ub.utils.di.components.DaggerAppComponent
-import com.ub.utils.di.components.DaggerMainComponent
 import com.ub.utils.di.components.MainComponent
-import com.ub.utils.di.modules.MainModule
+import com.ub.utils.di.components.create
 
 class BaseApplication : Application() {
 
@@ -16,9 +14,7 @@ class BaseApplication : Application() {
     }
 
     private fun initDI() {
-        appComponent = DaggerAppComponent.builder()
-            .context(this)
-            .build()
+        appComponent = AppComponent::class.create(this)
     }
 
     companion object {
@@ -27,9 +23,7 @@ class BaseApplication : Application() {
             private set
 
         fun createMainComponent(): MainComponent {
-            return DaggerMainComponent.builder()
-                .appComponent(appComponent)
-                .build()
+            return MainComponent::class.create(appComponent)
         }
     }
 }

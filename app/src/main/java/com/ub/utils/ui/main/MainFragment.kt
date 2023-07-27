@@ -44,8 +44,8 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
             )
         }
         provideFactory {
-            BaseApplication.createMainComponent().provider.create(
-                urlToLoad = images[random.nextInt(images.size)]
+            BaseApplication.createMainComponent().mainViewModelFactory().invoke(
+                images[random.nextInt(images.size)]
             )
         }
     }

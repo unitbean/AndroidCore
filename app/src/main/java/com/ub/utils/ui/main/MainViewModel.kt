@@ -1,36 +1,30 @@
 package com.ub.utils.ui.main
 
-import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
 import com.ub.utils.*
 import com.ub.utils.di.services.api.responses.PostResponse
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import me.tatarka.inject.annotations.Assisted
+import me.tatarka.inject.annotations.Inject
 import java.util.*
 
-@AssistedFactory
-interface MainViewModelProvider {
-    fun create(urlToLoad: String): MainViewModel
-}
-
-@SuppressLint("StaticFieldLeak")
-class MainViewModel @AssistedInject constructor(
+@Inject
+class MainViewModel(
     @Assisted private val urlToLoad: String,
     private val interactor: MainInteractor,
-    private val context: Context
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
 
     private val list = ArrayList<PostResponse>()
 
@@ -52,7 +46,7 @@ class MainViewModel @AssistedInject constructor(
     init {
         load()
         loadImage()
-        networkTest(context)
+        networkTest(application)
     }
 
     private fun load() {
@@ -88,6 +82,7 @@ class MainViewModel @AssistedInject constructor(
         withUseCaseScope(
             onError = { e -> LogUtils.e("CacheImage", e.message, e) }
         ) {
+            val context = getApplication<BaseApplication>()
             val nameWithExtension = context.getFileNameFromUri(uri)
             val savedFile = createFileWithContent(
                 inputContent = context.contentResolver.openInputStream(uri) ?: return@withUseCaseScope,
@@ -107,8 +102,9 @@ class MainViewModel @AssistedInject constructor(
     }
 
     fun removeCachedFiles() {
+        val context = getApplication<BaseApplication>()
         val removedList = context.cacheDir?.listFiles()?.map { file ->
-             context.deleteFile(file, "${context.packageName}.core.fileprovider")
+            context.deleteFile(file, "${context.packageName}.core.fileprovider")
         }
         removedList?.firstOrNull { false }?.let {
             LogUtils.e("RemoveCached", "Cached files was not be deleted completely")
