@@ -201,13 +201,8 @@ val ResponseBody.bodyToString: String
     get() {
         val source: BufferedSource = source()
         source.request(Long.MAX_VALUE)
-        val buffer = source.buffer
-        var charset: Charset = Charsets.UTF_8
-        val contentType: MediaType? = contentType()
-        if (contentType != null) {
-            charset = contentType.charset(Charsets.UTF_8) ?: charset
-        }
-        return buffer.clone().readString(charset)
+        val charset = contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+        return source.buffer.clone().readString(charset)
     }
 
 /**
