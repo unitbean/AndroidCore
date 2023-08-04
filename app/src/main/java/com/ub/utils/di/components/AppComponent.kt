@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.ViewModelProvider
 import com.ub.utils.di.CoreViewModelProvider
-import com.ub.utils.di.services.ApiService
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import me.tatarka.inject.annotations.Scope
@@ -15,8 +14,6 @@ import me.tatarka.inject.annotations.Scope
 @AppScope
 @Component
 abstract class AppComponent(private val application: Application) {
-
-    abstract val apiService: ApiService
 
     abstract val viewModelFactory: ViewModelProvider.Factory
 

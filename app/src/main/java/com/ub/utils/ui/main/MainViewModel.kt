@@ -10,14 +10,21 @@ import androidx.lifecycle.AndroidViewModel
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
-import com.ub.utils.*
+import com.ub.utils.BaseApplication
+import com.ub.utils.CNetwork
+import com.ub.utils.createFileWithContent
+import com.ub.utils.deleteFile
 import com.ub.utils.di.services.api.responses.PostResponse
+import com.ub.utils.getFileNameFromUri
+import com.ub.utils.getImage
+import com.ub.utils.renew
+import com.ub.utils.withUseCaseScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
-import java.util.*
+import timber.log.Timber
 
 @Inject
 class MainViewModel(
@@ -51,7 +58,7 @@ class MainViewModel(
 
     private fun load() {
         withUseCaseScope(
-            onError = { e -> LogUtils.e("POST", e.message ?: "Error", e) }
+            onError = { e -> Timber.e("POST", e.message ?: "Error", e) }
         ) {
             val posts = interactor.loadPosts()
             list.renew(posts)
@@ -69,7 +76,7 @@ class MainViewModel(
 
     private fun networkTest(context: Context) {
         withUseCaseScope(
-            onError = { e -> LogUtils.e("NetworkTest", e.message, e) }
+            onError = { e -> Timber.e("NetworkTest", e.message, e) }
         ) {
             val network = CNetwork(context)
             network.startListener().collect {
@@ -80,7 +87,7 @@ class MainViewModel(
 
     fun cachePickedImage(uri: Uri) {
         withUseCaseScope(
-            onError = { e -> LogUtils.e("CacheImage", e.message, e) }
+            onError = { e -> Timber.e("CacheImage", e.message, e) }
         ) {
             val context = getApplication<BaseApplication>()
             val nameWithExtension = context.getFileNameFromUri(uri)
@@ -107,13 +114,13 @@ class MainViewModel(
             context.deleteFile(file, "${context.packageName}.core.fileprovider")
         }
         removedList?.firstOrNull { false }?.let {
-            LogUtils.e("RemoveCached", "Cached files was not be deleted completely")
+            Timber.e("RemoveCached", "Cached files was not be deleted completely")
         }
     }
 
     private fun loadImage() {
         withUseCaseScope(
-            onError = { e -> LogUtils.e("ImageDownload", e.message, e) }
+            onError = { e -> Timber.e("ImageDownload", e.message, e) }
         ) {
             val url = testAes(urlToLoad)
             val image = interactor.loadImage(url)
@@ -123,7 +130,7 @@ class MainViewModel(
 
     private fun testAes(textToTest: String): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            LogUtils.d("AES/GCM", "Encryption test started")
+            Timber.d("AES/GCM", "Encryption test started")
             val startTime = SystemClock.uptimeMillis()
             val key = "test".toSecretKey()
             val encryption: AuthenticatedEncryption = AesGcmEncryption()
@@ -132,14 +139,14 @@ class MainViewModel(
                 key
             )
             val encryptTime = SystemClock.uptimeMillis()
-            LogUtils.d("AES/GCM", "Time to encrypt is ${encryptTime - startTime}")
+            Timber.d("AES/GCM", "Time to encrypt is ${encryptTime - startTime}")
             val decryption: AuthenticatedEncryption = AesGcmEncryption()
             val decrypted = decryption.decrypt(
                 encrypted,
                 key
             )
             val decryptTime = SystemClock.uptimeMillis()
-            LogUtils.d("AES/GCM", "Time to decrypt is ${decryptTime - encryptTime}")
+            Timber.d("AES/GCM", "Time to decrypt is ${decryptTime - encryptTime}")
             return String(decrypted)
         } else textToTest
     }

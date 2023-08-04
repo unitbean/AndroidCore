@@ -4,6 +4,7 @@ import android.app.Application
 import com.ub.utils.di.components.AppComponent
 import com.ub.utils.di.components.MainComponent
 import com.ub.utils.di.components.create
+import timber.log.Timber
 
 class BaseApplication : Application() {
 
@@ -11,6 +12,8 @@ class BaseApplication : Application() {
         super.onCreate()
 
         initDI()
+
+        Timber.plant(Timber.DebugTree())
     }
 
     private fun initDI() {

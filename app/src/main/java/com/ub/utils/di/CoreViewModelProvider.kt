@@ -6,11 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.ub.utils.di.components.AppScope
 import com.ub.utils.ui.biometric.BiometricViewModel
 import me.tatarka.inject.annotations.Inject
 
-@AppScope
 @Inject
 class CoreViewModelProvider(
     private val application: Application,
