@@ -128,19 +128,24 @@ fun Context.getFileSizeByUri(uri: Uri): Long? {
 ])
 @WorkerThread
 fun Context.getImage(imageUri: Uri): Bitmap {
-    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    val isApiPieOrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+    val bitmap = if (isApiPieOrLater) {
         ImageDecoder.createSource(contentResolver, imageUri).let { source ->
             ImageDecoder.decodeBitmap(source)
         }
     } else {
         @Suppress("DEPRECATION")
-        MediaStore.Images.Media.getBitmap(
-            contentResolver,
-            imageUri
-        )
+        MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
     }
 
-    // If the image is rotated, fix it
+    fun rotateBitmapIfNeeded(angle: Float, isNeedRotate: Boolean): Bitmap {
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, Matrix().apply {
+            if (isNeedRotate) {
+                postRotate(angle)
+            }
+        },true)
+    }
+
     return when (
         contentResolver.openInputStream(imageUri)?.use { inputStream ->
             ExifInterface(inputStream).getAttributeInt(
@@ -149,15 +154,9 @@ fun Context.getImage(imageUri: Uri): Bitmap {
             )
         } ?: return bitmap
     ) {
-        ExifInterface.ORIENTATION_ROTATE_90 ->
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, Matrix().apply {
-                postRotate(90F) }, true)
-        ExifInterface.ORIENTATION_ROTATE_180 ->
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, Matrix().apply {
-                postRotate(180F) }, true)
-        ExifInterface.ORIENTATION_ROTATE_270 ->
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, Matrix().apply {
-                postRotate(270F) }, true)
+        ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmapIfNeeded(90F, !isApiPieOrLater)
+        ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmapIfNeeded(180F, !isApiPieOrLater)
+        ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmapIfNeeded(270F, !isApiPieOrLater)
         else -> bitmap
     }
 }
