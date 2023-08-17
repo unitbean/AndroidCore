@@ -45,6 +45,14 @@ import androidx.fragment.app.Fragment
  * Необходимо для использования:
  * - наличие [TextureView] с идентификатором [R.id.texture_view]
  * - наличие [android.widget.View] с идентификатором [R.id.capture_button]
+ *
+ * [Референс](https://github.com/TomerPacific/MediumArticles/tree/master/Camrea2API)
+ *
+ * Сделать:
+ * - возврат результата
+ * - работа с разрешениями
+ * - остановка искателя и восстановление состояния
+ * - соотношение сторон в искателе
  */
 class CameraFragment : Fragment() {
 
