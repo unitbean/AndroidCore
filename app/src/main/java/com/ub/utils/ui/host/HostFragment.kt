@@ -2,6 +2,8 @@ package com.ub.utils.ui.host
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
+import com.ub.camera.CameraFragment
 import com.ub.utils.NavigationRootFragment
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentHostBinding
@@ -33,6 +35,11 @@ class HostFragment : NavigationRootFragment(R.layout.fragment_host) {
                 R.id.menu_yandex -> switchToFragment(
                     tag = "navigation#3",
                     fragmentInstance = MapFragment()
+                )
+                R.id.menu_camera -> switchToFragment(
+                    tag = "navigation#4",
+                    fragmentInstance = CameraFragment(),
+                    arguments = bundleOf("layout_id" to R.layout.fragment_camera)
                 )
             }
 

@@ -12,4 +12,8 @@
         android:id="@+id/menu_yandex"
         android:title="@string/menu_title_maps"
         android:icon="@drawable/ic_vector_map"/>
+    <item
+        android:id="@+id/menu_camera"
+        android:title="@string/menu_title_maps"
+        android:icon="@drawable/baseline_photo_camera_24"/>
 </menu>

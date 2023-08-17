@@ -49,6 +49,7 @@ android {
 dependencies {
     implementation(project(":android"))
     implementation(project(":yandex"))
+    implementation(project(":camera"))
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
     // testing
