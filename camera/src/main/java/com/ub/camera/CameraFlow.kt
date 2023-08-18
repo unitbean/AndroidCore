@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresPermission
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -42,6 +43,8 @@ class CameraFlow(
 
     private var cameraExecutor: ExecutorService? = null
     private var imageCapture: ImageCapture? = null
+    private var selectedCamera: CameraInfo? = null
+    private var camera: Camera? = null
 
     private val resultChannel: Channel<Result<Unit>> = Channel<Result<Unit>>(capacity = Channel.BUFFERED).apply {
         invokeOnClose {
@@ -52,23 +55,50 @@ class CameraFlow(
     private val availableCamerasMutable = mutableListOf<CameraInfo>()
     val availableCameras: List<CameraInfo> = availableCamerasMutable
 
-    // TODO включение/выключение фонарика
-    var flashlight: Boolean
-        set(value) {
+    fun setFlashlight(isEnabled: Boolean) {
+        camera?.cameraControl?.enableTorch(isEnabled)
+    }
 
-        }
-        get() {
-            return false
-        }
-
-    // TODO переключение на конкретную камеру
     fun selectCamera(camera: CameraInfo) {
-
+        this.selectedCamera = camera
+        initCamera()
     }
 
     @RequiresPermission(value = Manifest.permission.CAMERA)
     fun startPreview(): Flow<Result<Unit>> {
+        initCamera()
+        return resultChannel.receiveAsFlow()
+    }
 
+    /**
+     * TODO разные опции сохранения
+     */
+    @RequiresPermission(value = Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    suspend fun takePhoto(
+        filename: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
+            .format(System.currentTimeMillis()),
+        relativeFolder: String = "Pictures/CameraX-Image"
+    ) : Uri = suspendCoroutine {
+        imageCapture?.let { capture ->
+            val outputOptions = outputOptionsScopedStorage(filename, relativeFolder)
+
+            capture.takePicture(
+                outputOptions,
+                ContextCompat.getMainExecutor(previewView.context),
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onError(exc: ImageCaptureException) = it.resumeWith(Result.failure(exc))
+
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        output.savedUri?.let { uri ->
+                            it.resumeWith(Result.success(uri))
+                        } ?: it.resumeWith(Result.failure(NullPointerException("Camera result is null")))
+                    }
+                }
+            )
+        } ?: it.resumeWith(Result.failure(NullPointerException("ImageCapture instance is null")))
+    }
+
+    private fun initCamera() {
         if (ContextCompat.checkSelfPermission(previewView.context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             resultChannel.trySend(Result.failure(SecurityException("Camera permission was not granted")))
         } else {
@@ -89,11 +119,17 @@ class CameraFlow(
                 imageCapture = ImageCapture.Builder()
                     .build()
 
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                val cameraSelector = if (selectedCamera == null) {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                } else {
+                    CameraSelector.Builder()
+                        .addCameraFilter { cameraInfos -> cameraInfos.filter { it == selectedCamera } }
+                        .build()
+                }
 
                 try {
                     cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
+                    camera = cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector, preview, imageCapture
                     )
                 } catch (exc: Exception) {
@@ -104,43 +140,14 @@ class CameraFlow(
                 resultChannel.trySend(Result.success(Unit))
             }, ContextCompat.getMainExecutor(previewView.context))
         }
-
-        return resultChannel.receiveAsFlow()
     }
 
-    /**
-     * TODO разные опции сохранения
-     */
-    @RequiresPermission(value = Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    suspend fun takePhoto(
-        filename: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-            .format(System.currentTimeMillis())
-    ) : Uri = suspendCoroutine {
-        imageCapture?.let { capture ->
-            val outputOptions = outputOptionsScopedStorage(filename)
-
-            capture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(previewView.context),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) = it.resumeWith(Result.failure(exc))
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        output.savedUri?.let { uri ->
-                            it.resumeWith(Result.success(uri))
-                        } ?: it.resumeWith(Result.failure(NullPointerException("Camera result is null")))
-                    }
-                }
-            )
-        } ?: it.resumeWith(Result.failure(NullPointerException("ImageCapture instance is null")))
-    }
-
-    private fun outputOptionsScopedStorage(filename: String): ImageCapture.OutputFileOptions {
+    private fun outputOptionsScopedStorage(filename: String, relativeFolder: String): ImageCapture.OutputFileOptions {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+                put(MediaStore.Images.Media.RELATIVE_PATH, relativeFolder)
             }
         }
 
