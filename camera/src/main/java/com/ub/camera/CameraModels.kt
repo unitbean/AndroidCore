@@ -5,12 +5,19 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageCapture
 import com.google.common.net.MediaType
 import java.io.File
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+data class CameraState(
+    val isFlashIsAvailable: Boolean = false,
+    val isTorchEnabled: Boolean = false,
+    val availableCameras: List<CameraInfo> = listOf()
+)
 
 sealed class CameraOutputVariant {
     internal abstract fun toOptions(context: Context): ImageCapture.OutputFileOptions

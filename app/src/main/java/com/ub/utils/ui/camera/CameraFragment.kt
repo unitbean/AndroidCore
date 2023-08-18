@@ -10,7 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.ub.camera.CameraFlow
+import com.ub.camera.CameraSession
 import com.ub.camera.CameraExternalStorage
 import com.ub.camera.CameraOutputStream
 import com.ub.utils.R
@@ -20,7 +20,6 @@ import com.ub.utils.launchAndRepeatWithViewLifecycle
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.File
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
@@ -38,21 +37,22 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     "Permission request denied",
                     Toast.LENGTH_SHORT).show()
             } else {
-
+                runBlocking { photo?.updateSession() }
             }
         }
 
     private var binding: FragmentCameraBinding? = null
 
-    private var isFlashlightEnabled = false
     private var cameraIndex = 0
+
+    private var photo: CameraSession? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentCameraBinding.bind(view)
 
-        val photo = CameraFlow(
+        photo = CameraSession(
             lifecycleOwner = this,
             previewView = binding!!.previewView
         )
@@ -68,22 +68,23 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
             }
         }
         binding?.switchCamera?.setOnClickListener {
-            if (photo.availableCameras.size.minus(1) == cameraIndex) {
-                cameraIndex = 0
-            } else {
-                cameraIndex += 1
+            photo?.state?.value?.availableCameras?.let { cameras ->
+                if (cameras.size.minus(1) == cameraIndex) {
+                    cameraIndex = 0
+                } else {
+                    cameraIndex += 1
+                }
+                val camera = cameras[cameraIndex]
+                runBlocking { photo?.selectCamera(camera) }
             }
-            val camera = photo.availableCameras[cameraIndex]
-            runBlocking { photo.selectCamera(camera) }
         }
         binding?.flashlight?.setOnClickListener {
-            isFlashlightEnabled = !isFlashlightEnabled
-            runBlocking { photo.setFlashlight(isFlashlightEnabled) }
+            runBlocking { photo?.toggleFlashlight() }
         }
 
         binding?.captureExternalButton?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val uri = photo.takePhoto(CameraExternalStorage()) ?: return@launch
+                val uri = photo?.takePhoto(CameraExternalStorage()) ?: return@launch
                 Toast.makeText(view.context, uri.path, Toast.LENGTH_LONG).show()
             }
         }
@@ -95,14 +96,18 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     authority = "${context.packageName}.core.fileprovider"
                 )
                 val outStream = context.contentResolver.openOutputStream(uriForWrite)
-                val uri = photo.takePhoto(CameraOutputStream(outStream ?: return@launch))
+                val uri = photo?.takePhoto(CameraOutputStream(outStream ?: return@launch))
                 Toast.makeText(view.context, uri?.path ?: uriForWrite.path, Toast.LENGTH_LONG).show()
             }
         }
 
         launchAndRepeatWithViewLifecycle {
             launch {
-                photo.startPreview()
+                photo?.startSession()?.collect { state ->
+                    binding?.flashlight?.isEnabled = state.isFlashIsAvailable
+                    binding?.switchCamera?.isEnabled = state.availableCameras.size > 1
+                    binding?.flashlight?.isActivated = state.isTorchEnabled
+                }
             }
         }
 
@@ -114,6 +119,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+        photo = null
     }
 
     private fun requestPermissions() {

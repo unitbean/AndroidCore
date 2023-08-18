@@ -9,12 +9,13 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
+r
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/flashlight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorAccent"
+        android:layout_margin="8dp"
+        android:background="@drawable/selector_camera_button"
         app:srcCompat="@drawable/baseline_flashlight_on_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -23,12 +24,13 @@
         android:id="@+id/switch_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorAccent"
+        android:layout_margin="8dp"
+        android:background="@drawable/selector_camera_button"
         app:srcCompat="@drawable/baseline_cameraswitch_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/capture_external_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +40,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/capture_files_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
