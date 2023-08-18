@@ -13,12 +13,14 @@ import com.ub.utils.launchAndRepeatWithViewLifecycle
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     private var binding: FragmentCameraBinding? = null
 
     private var isFlashlightEnabled = false
+    private var cameraIndex = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,9 +37,23 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 margin()
             }
         }
+        binding?.switchCamera?.applyInsetter {
+            type(statusBars = true) {
+                margin()
+            }
+        }
+        binding?.switchCamera?.setOnClickListener {
+            if (photo.availableCameras.size.minus(1) == cameraIndex) {
+                cameraIndex = 0
+            } else {
+                cameraIndex += 1
+            }
+            val camera = photo.availableCameras[cameraIndex]
+            runBlocking { photo.selectCamera(camera) }
+        }
         binding?.flashlight?.setOnClickListener {
             isFlashlightEnabled = !isFlashlightEnabled
-            photo.setFlashlight(isFlashlightEnabled)
+            runBlocking { photo.setFlashlight(isFlashlightEnabled) }
         }
 
         binding?.captureButton?.setOnClickListener {
@@ -49,7 +65,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
         launchAndRepeatWithViewLifecycle {
             launch {
-                photo.startPreview().collect()
+                photo.startPreview()
             }
         }
     }
