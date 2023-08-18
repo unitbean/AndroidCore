@@ -1,186 +1,74 @@
 package com.ub.camera
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.OutputConfiguration
-import android.hardware.camera2.params.SessionConfiguration
-import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
-import android.hardware.camera2.params.StreamConfigurationMap
-import android.media.Image
-import android.media.ImageReader
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Looper
-import android.util.Log
-import android.util.Size
-import android.util.SparseIntArray
+import android.provider.MediaStore
 import android.view.LayoutInflater
-import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.core.os.ExecutorCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * Настраиваемый компонент камеры
  *
  * Необходимо для использования:
- * - наличие [TextureView] с идентификатором [R.id.texture_view]
+ * - наличие [PreviewView] с идентификатором [R.id.preview_view]
  * - наличие [android.widget.View] с идентификатором [R.id.capture_button]
  *
- * [Референс](https://github.com/TomerPacific/MediumArticles/tree/master/Camrea2API)
+ * [Референс](https://developer.android.com/codelabs/camerax-getting-started)
+ * [Пак примеров](https://github.com/android/camera-samples)
  *
  * Сделать:
- * - возврат результата
  * - работа с разрешениями
- * - остановка искателя и восстановление состояния
- * - соотношение сторон в искателе
  * - возможность переключать камеры
+ * - включение/выключение вспышки
+ * - поворот по EXIF-данным
  */
 class CameraFragment : Fragment() {
 
-    private val cameraManager: CameraManager? by lazy {
-        val context = requireContext().applicationContext
-        ContextCompat.getSystemService(context, CameraManager::class.java)
-    }
-
-    private var textureView: TextureView? = null
-    private var cameraDevice: CameraDevice? = null
-    private var backgroundHandler: Handler? = null
-    private var backgroundHandlerThread: HandlerThread? = null
-    private var captureRequestBuilder: CaptureRequest.Builder? = null
-    private var cameraCaptureSession: CameraCaptureSession? = null
-    private var previewSize: Size? = null
-    private var imageReader: ImageReader? = null
-    private var cameraId: String? = null
-    private var shouldProceedWithOnResume: Boolean = true
-    private var orientations : SparseIntArray = SparseIntArray(4).apply {
-        append(Surface.ROTATION_0, 0)
-        append(Surface.ROTATION_90, 90)
-        append(Surface.ROTATION_180, 180)
-        append(Surface.ROTATION_270, 270)
-    }
-
-    private val onImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
-        Toast.makeText(requireContext(), "Photo Taken!", Toast.LENGTH_SHORT).show()
-        val image: Image = reader.acquireLatestImage()
-        image.close()
-    }
-
-    private val captureStateCallback = object : CameraCaptureSession.StateCallback() {
-        override fun onConfigureFailed(session: CameraCaptureSession) = Unit
-        override fun onConfigured(session: CameraCaptureSession) {
-            cameraCaptureSession = session
-
-            cameraCaptureSession?.setRepeatingRequest(
-                captureRequestBuilder?.build()!!,
-                null,
-                backgroundHandler
-            )
-        }
-    }
-
-    private val cameraStateCallback = object : CameraDevice.StateCallback() {
-        override fun onOpened(camera: CameraDevice) {
-            cameraDevice = camera
-            val surfaceTexture : SurfaceTexture? = textureView?.surfaceTexture
-            surfaceTexture?.setDefaultBufferSize(previewSize?.width!!, previewSize?.height!!)
-            val previewSurface = Surface(surfaceTexture)
-
-            captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)?.apply {
-                addTarget(previewSurface)
+    private val permissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions())
+        { permissions ->
+            var permissionGranted = true
+            permissions.entries.forEach {
+                if (it.key in REQUIRED_PERMISSIONS && !it.value)
+                    permissionGranted = false
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                cameraDevice?.createCaptureSession(
-                    SessionConfiguration(
-                        SESSION_REGULAR,
-                        listOf(OutputConfiguration(previewSurface), OutputConfiguration(imageReader?.surface!!)),
-                        ExecutorCompat.create(Handler(Looper.getMainLooper())),
-                        captureStateCallback
-                    )
-                )
+            if (!permissionGranted) {
+                Toast.makeText(requireContext(),
+                    "Permission request denied",
+                    Toast.LENGTH_SHORT).show()
             } else {
-                @Suppress("DEPRECATION")
-                cameraDevice?.createCaptureSession(listOf(previewSurface, imageReader?.surface), captureStateCallback, null)
+                startCamera()
             }
         }
 
-        override fun onDisconnected(cameraDevice: CameraDevice) {
+    private var imageCapture: ImageCapture? = null
+    private var previewView: PreviewView? = null
+    private lateinit var cameraExecutor: ExecutorService
 
-        }
-
-        override fun onError(cameraDevice: CameraDevice, error: Int) {
-            val errorMsg = when(error) {
-                ERROR_CAMERA_DEVICE -> "Fatal (device)"
-                ERROR_CAMERA_DISABLED -> "Device policy"
-                ERROR_CAMERA_IN_USE -> "Camera in use"
-                ERROR_CAMERA_SERVICE -> "Fatal (service)"
-                ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
-                else -> "Unknown"
-            }
-            Log.e("CAMERA_TAG", "Error when trying to connect camera $errorMsg")
-        }
-    }
-
-    private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-        override fun onCaptureStarted(
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            timestamp: Long,
-            frameNumber: Long
-        ) = Unit
-        override fun onCaptureProgressed(
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            partialResult: CaptureResult
-        ) = Unit
-        override fun onCaptureCompleted(
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            result: TotalCaptureResult
-        ) = Unit
-    }
-
-    private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-        @SuppressLint("MissingPermission")
-        override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
-            if (wasCameraPermissionWasGiven()) {
-                setupCamera()
-                connectCamera()
-            }
-        }
-
-        override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
-
-        }
-
-        override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
-            return true
-        }
-
-        override fun onSurfaceTextureUpdated(texture: SurfaceTexture) {
-
-        }
-    }
+    private var cameraLogger: CameraLogger? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -189,86 +77,122 @@ class CameraFragment : Fragment() {
     ): View? {
         val layoutRes = arguments?.getInt(LAYOUT_ID) ?: throw IllegalArgumentException("LayoutId is null")
         val view = inflater.inflate(layoutRes, null, false)
-        if (view.findViewById<View>(R.id.texture_view) == null) {
+        if (view.findViewById<View>(R.id.preview_view) == null) {
             throw IllegalArgumentException("TextureView is not set")
         }
+        cameraExecutor = Executors.newSingleThreadExecutor()
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        textureView = view.findViewById(R.id.texture_view)
-        view.findViewById<Button>(R.id.capture_button).setOnClickListener {
+        previewView = view.findViewById(R.id.preview_view)
+        view.findViewById<Button?>(R.id.capture_button)?.setOnClickListener {
             takePhoto()
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        startBackgroundThread()
-        if (textureView?.isAvailable == true && shouldProceedWithOnResume) {
-            setupCamera()
-        } else if (textureView?.isAvailable != true) {
-            textureView?.surfaceTextureListener = surfaceTextureListener
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            requestPermissions()
         }
-        shouldProceedWithOnResume = !shouldProceedWithOnResume
     }
 
-    private fun startBackgroundThread() {
-        backgroundHandlerThread = HandlerThread("CameraVideoThread")
-        backgroundHandlerThread?.start()
-        backgroundHandlerThread?.looper?.let { backgroundHandler = Handler(it) }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        cameraExecutor.shutdown()
     }
 
-    private fun stopBackgroundThread() {
-        backgroundHandlerThread?.quitSafely()
-        backgroundHandlerThread?.join()
-    }
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
-    private fun setupCamera() {
-        val cameraIds: Array<String> = cameraManager?.cameraIdList ?: emptyArray()
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(previewView?.surfaceProvider)
+                }
+            imageCapture = ImageCapture.Builder()
+                .build()
 
-        for (id in cameraIds) {
-            val cameraCharacteristics = cameraManager?.getCameraCharacteristics(id)
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-            //If we want to choose the rear facing camera instead of the front facing one
-            if (cameraCharacteristics?.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT) {
-                continue
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture)
+            } catch (exc: Exception) {
+                cameraLogger?.log("Use case binding failed", exc)
             }
 
-            val streamConfigurationMap : StreamConfigurationMap? = cameraCharacteristics?.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-
-            if (streamConfigurationMap != null) {
-                previewSize = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)?.getOutputSizes(ImageFormat.JPEG)?.maxByOrNull { it.height * it.width }
-                imageReader = ImageReader.newInstance(previewSize?.width!!, previewSize?.height!!, ImageFormat.JPEG, 1)
-                imageReader?.setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
-            }
-            cameraId = id
-        }
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun takePhoto() {
-        captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)?.also {
-            it.addTarget(imageReader?.surface!!)
-            val rotation = requireActivity().windowManager.defaultDisplay.rotation
-            it.set(CaptureRequest.JPEG_ORIENTATION, orientations.get(rotation))
-            cameraCaptureSession?.capture(it.build(), captureCallback, null)
+        val imageCapture = imageCapture ?: return
+
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
         }
+
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(
+                requireActivity().contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+            .build()
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(requireContext()),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    setFragmentResult(CAMERA_RESULT, bundleOf(CAMERA_ERROR_CODE to exc.imageCaptureError))
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    output.savedUri?.let {
+                        setFragmentResult(CAMERA_RESULT, bundleOf(CAMERA_SAVED_URI to it))
+                    }
+                }
+            }
+        )
     }
 
-    @SuppressLint("MissingPermission")
-    private fun connectCamera() {
-        cameraManager?.openCamera(cameraId!!, cameraStateCallback, backgroundHandler)
+    private fun requestPermissions() {
+        permissionLauncher.launch(REQUIRED_PERMISSIONS)
     }
 
-    private fun wasCameraPermissionWasGiven() : Boolean {
-        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {
 
+        const val CAMERA_RESULT = "camera_result"
+        const val CAMERA_SAVED_URI = "camera_saved_uri"
+        const val CAMERA_ERROR_CODE = "camera_error_code"
+
         private const val LAYOUT_ID = "layout_id"
+
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private val REQUIRED_PERMISSIONS =
+            mutableListOf (
+                Manifest.permission.CAMERA,
+            ).apply {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+            }.toTypedArray()
 
         /**
          * @param cameraFragmentId разметка камеры, которая должна включать в себе компоненты [R.id.capture_button], [R.id.capture_button]

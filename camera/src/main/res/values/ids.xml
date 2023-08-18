@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="id" name="texture_view" />
+    <!-- reserved id for PreviewView instance, which is necessary for Camera working -->
+    <item type="id" name="preview_view" />
+    <!-- reserved id for View of any type, which is necessary for taking photos from Camera -->
     <item type="id" name="capture_button" />
 </resources>

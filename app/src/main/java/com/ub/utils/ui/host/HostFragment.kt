@@ -1,9 +1,15 @@
 package com.ub.utils.ui.host
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResultListener
 import com.ub.camera.CameraFragment
+import com.ub.camera.CameraFragment.Companion.CAMERA_RESULT
+import com.ub.camera.CameraFragment.Companion.CAMERA_SAVED_URI
 import com.ub.utils.NavigationRootFragment
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentHostBinding
@@ -48,6 +54,14 @@ class HostFragment : NavigationRootFragment(R.layout.fragment_host) {
 
         if (isInInitialState) {
             binding?.bottomNavigation?.selectedItemId = R.id.menu_main
+        }
+
+        childFragmentManager.setFragmentResultListener(CAMERA_RESULT, viewLifecycleOwner) { key, bundle ->
+            if (bundle.containsKey(CAMERA_SAVED_URI)) {
+                val uri = BundleCompat.getParcelable(bundle, CAMERA_SAVED_URI, Uri::class.java)
+                Toast.makeText(view.context, uri?.path, Toast.LENGTH_LONG).show()
+                binding?.bottomNavigation?.selectedItemId = R.id.menu_main
+            }
         }
     }
 
