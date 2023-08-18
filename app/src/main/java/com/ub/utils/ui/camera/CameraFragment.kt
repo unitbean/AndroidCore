@@ -13,8 +13,6 @@ import com.ub.utils.launchAndRepeatWithViewLifecycle
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
@@ -44,13 +42,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
         binding?.captureButton?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val uri = photo.takePhoto(
-                    CameraScopedStorage(
-                        filename = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-                            .format(System.currentTimeMillis()),
-                        relativeFolder =
-                    )
-                )
+                val uri = photo.takePhoto(CameraScopedStorage())
                 Toast.makeText(view.context, uri.path, Toast.LENGTH_LONG).show()
             }
         }

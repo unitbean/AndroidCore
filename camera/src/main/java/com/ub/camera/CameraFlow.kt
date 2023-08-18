@@ -1,11 +1,8 @@
 package com.ub.camera
 
 import android.Manifest
-import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.annotation.RequiresPermission
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -20,8 +17,6 @@ import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
-import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.coroutines.suspendCoroutine
@@ -70,17 +65,12 @@ class CameraFlow(
         return resultChannel.receiveAsFlow()
     }
 
-    /**
-     * TODO разные опции сохранения
-     */
     @RequiresPermission(value = Manifest.permission.WRITE_EXTERNAL_STORAGE)
     suspend fun takePhoto(
-        filename: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-            .format(System.currentTimeMillis()),
-        relativeFolder: String = "Pictures/CameraX-Image"
+        variant: CameraOutputVariant
     ) : Uri = suspendCoroutine {
         imageCapture?.let { capture ->
-            val outputOptions = outputOptionsScopedStorage(filename, relativeFolder)
+            val outputOptions = variant.toOptions(previewView.context)
 
             capture.takePicture(
                 outputOptions,
@@ -140,23 +130,5 @@ class CameraFlow(
                 resultChannel.trySend(Result.success(Unit))
             }, ContextCompat.getMainExecutor(previewView.context))
         }
-    }
-
-    private fun outputOptionsScopedStorage(filename: String, relativeFolder: String): ImageCapture.OutputFileOptions {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, relativeFolder)
-            }
-        }
-
-        return ImageCapture.OutputFileOptions
-            .Builder(
-                previewView.context.contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-            .build()
     }
 }
