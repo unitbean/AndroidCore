@@ -14,10 +14,10 @@ sealed class CameraOutputVariant {
     internal abstract fun toOptions(context: Context): ImageCapture.OutputFileOptions
 }
 
-class CameraScopedStorage(
+class CameraExternalStorage(
     private val filename: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
         .format(System.currentTimeMillis()),
-    private val relativeFolder: String = "pictures",
+    private val relativeFolder: String = "Pictures",
     private val mimeType: String = "image/jpeg",
 ) : CameraOutputVariant() {
     override fun toOptions(context: Context): ImageCapture.OutputFileOptions {
