@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ub.camera.CameraFlow
-import com.ub.camera.CameraOutputStream
 import com.ub.camera.CameraExternalStorage
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentCameraBinding

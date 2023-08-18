@@ -32,24 +32,21 @@ android {
     buildFeatures {
         buildConfig = false
     }
+    packaging {
+        resources.excludes += "DebugProbesKt.bin"
+    }
 }
 
-val camerax_version = "1.2.3"
+val cameraxVer = "1.2.3"
 
 dependencies {
 
-    api("androidx.camera:camera-core:${camerax_version}")
-    api("androidx.camera:camera-view:${camerax_version}")
-    implementation("androidx.camera:camera-camera2:${camerax_version}")
-    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
-    implementation("androidx.camera:camera-extensions:${camerax_version}")
+    api("androidx.camera:camera-core:${cameraxVer}")
+    api("androidx.camera:camera-view:${cameraxVer}")
+    implementation("androidx.camera:camera-camera2:${cameraxVer}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVer}")
 
     implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:${Deps.coroutinesVer}")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

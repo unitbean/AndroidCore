@@ -9,7 +9,7 @@ plugins {
 }
 
 tasks.dokkaJavadoc.configure {
-    outputDirectory.set(buildDir.resolve("javadoc"))
+    outputDirectory.set(layout.buildDirectory.dir("javadoc"))
 }
 
 mavenPublishing {

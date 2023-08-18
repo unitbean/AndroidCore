@@ -14,6 +14,8 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.guava.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -81,31 +83,27 @@ class CameraFlow(
      */
     suspend fun takePhoto(
         variant: CameraOutputVariant
-    ): Uri = suspendCoroutine {
-        imageCapture?.let { capture ->
-            val outputOptions = variant.toOptions(previewView.context)
+    ): Uri = suspendCoroutine { continuation ->
+        imageCapture?.takePicture(
+            variant.toOptions(previewView.context),
+            ContextCompat.getMainExecutor(previewView.context),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) = continuation.resumeWithException(exc)
 
-            capture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(previewView.context),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) = it.resumeWith(Result.failure(exc))
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        output.savedUri?.let { uri ->
-                            it.resumeWith(Result.success(uri))
-                        } ?: it.resumeWith(Result.failure(NullPointerException("Camera result is null")))
-                    }
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    output.savedUri?.let { uri ->
+                        continuation.resume(uri)
+                    } ?: continuation.resumeWithException(NullPointerException("Camera result is null"))
                 }
-            )
-        } ?: it.resumeWith(Result.failure(NullPointerException("ImageCapture instance is null")))
+            }
+        ) ?: continuation.resumeWithException(NullPointerException("ImageCapture instance is null"))
     }
 
     private suspend fun initCamera(): Result<Unit> {
         if (ContextCompat.checkSelfPermission(previewView.context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             return Result.failure(SecurityException("Camera permission was not granted"))
         } else {
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(previewView.context)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(previewView.context.applicationContext)
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.await()
 
             availableCamerasMutable.clear()
