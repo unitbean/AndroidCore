@@ -12,12 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ub.camera.CameraFlow
 import com.ub.camera.CameraExternalStorage
+import com.ub.camera.CameraOutputStream
 import com.ub.utils.R
+import com.ub.utils.createUriReadyForWrite
 import com.ub.utils.databinding.FragmentCameraBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.File
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
@@ -80,8 +83,20 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
         binding?.captureExternalButton?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val uri = photo.takePhoto(CameraExternalStorage())
+                val uri = photo.takePhoto(CameraExternalStorage()) ?: return@launch
                 Toast.makeText(view.context, uri.path, Toast.LENGTH_LONG).show()
+            }
+        }
+        binding?.captureFilesButton?.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val context = requireContext()
+                val uriForWrite = context.createUriReadyForWrite(
+                    nameWithExtension = "temp_photo.jpg",
+                    authority = "${context.packageName}.core.fileprovider"
+                )
+                val outStream = context.contentResolver.openOutputStream(uriForWrite)
+                val uri = photo.takePhoto(CameraOutputStream(outStream ?: return@launch))
+                Toast.makeText(view.context, uri?.path ?: uriForWrite.path, Toast.LENGTH_LONG).show()
             }
         }
 

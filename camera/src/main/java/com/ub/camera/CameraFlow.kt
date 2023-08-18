@@ -79,11 +79,11 @@ class CameraFlow(
      * [android.os.Build.VERSION.SDK_INT] <= [android.os.Build.VERSION_CODES.P] for work
      *
      * @param variant type of output data, must be one of descendants [CameraOutputVariant]
-     * @return [Uri] with output data
+     * @return [Uri] with output data. May be null if [variant] is [CameraOutputStream]
      */
     suspend fun takePhoto(
         variant: CameraOutputVariant
-    ): Uri = suspendCoroutine { continuation ->
+    ): Uri? = suspendCoroutine { continuation ->
         imageCapture?.takePicture(
             variant.toOptions(previewView.context),
             ContextCompat.getMainExecutor(previewView.context),
@@ -93,7 +93,7 @@ class CameraFlow(
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     output.savedUri?.let { uri ->
                         continuation.resume(uri)
-                    } ?: continuation.resumeWithException(NullPointerException("Camera result is null"))
+                    } ?: continuation.resume(null)
                 }
             }
         ) ?: continuation.resumeWithException(NullPointerException("ImageCapture instance is null"))

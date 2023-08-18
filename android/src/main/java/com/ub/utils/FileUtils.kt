@@ -66,8 +66,8 @@ fun createFileWithContent(
  */
 fun Context.createUriReadyForWrite(
     nameWithExtension: String,
+    authority: String,
     folder: File = filesDir,
-    authority: String
 ): Uri {
     val file = File(folder, nameWithExtension)
     return FileProvider.getUriForFile(this, authority, file)
