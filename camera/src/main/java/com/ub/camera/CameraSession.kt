@@ -10,6 +10,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.guava.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -31,7 +31,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * Source links: [reference](https://developer.android.com/codelabs/camerax-getting-started), [samples](https://github.com/android/camera-samples)
  *
- * @param lifecycleOwner for automatically handle parents lifecycle
+ * @param lifecycleOwner for automatically handle parents lifecycle; use [androidx.fragment.app.Fragment.viewLifecycleOwner] for fragments
  * @param previewView viewfinder presentation
  */
 class CameraSession(
@@ -63,9 +63,12 @@ class CameraSession(
      *
      * @param camera target camera instance
      */
-    suspend fun selectCamera(camera: CameraInfo) {
+    fun selectCamera(camera: CameraInfo) {
         this.selectedCamera = camera
-        initCamera()
+        val provider = ProcessCameraProvider.getInstance(previewView.context.applicationContext)
+        provider.addListener({
+            initCameraForProvider(provider.get())
+        }, ContextCompat.getMainExecutor(previewView.context))
     }
 
     /**
@@ -78,7 +81,10 @@ class CameraSession(
      * @return state of camera session in [CameraState] flow
      */
     fun startSession(): Flow<CameraState> {
-        return state.onStart { initCamera() }
+        return state.onStart {
+            val provider = ProcessCameraProvider.getInstance(previewView.context.applicationContext)
+            initCameraForProvider(provider.await())
+        }
     }
 
     /**
@@ -86,8 +92,11 @@ class CameraSession(
      *
      * This can be useful for, example, resolving granted permissions for update current session
      */
-    suspend fun updateSession() {
-        initCamera()
+    fun updateSession() {
+        val provider = ProcessCameraProvider.getInstance(previewView.context.applicationContext)
+        provider.addListener({
+            initCameraForProvider(provider.get())
+        }, ContextCompat.getMainExecutor(previewView.context))
     }
 
     /**
@@ -117,10 +126,7 @@ class CameraSession(
         ) ?: continuation.resumeWithException(NullPointerException("ImageCapture instance is null"))
     }
 
-    private suspend fun initCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(previewView.context.applicationContext)
-        val cameraProvider: ProcessCameraProvider = cameraProviderFuture.await()
-
+    private fun initCameraForProvider(cameraProvider: ProcessCameraProvider) {
         _state.update { state -> state.copy(availableCameras = cameraProvider.availableCameraInfos) }
 
         val preview = Preview.Builder()

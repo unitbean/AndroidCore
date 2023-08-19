@@ -38,7 +38,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     "Permission request denied",
                     Toast.LENGTH_SHORT).show()
             } else {
-                runBlocking { photo?.updateSession() }
+                photo?.updateSession()
             }
         }
 
@@ -54,7 +54,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         binding = FragmentCameraBinding.bind(view)
 
         photo = CameraSession(
-            lifecycleOwner = this,
+            lifecycleOwner = viewLifecycleOwner,
             previewView = binding!!.previewView
         )
 
@@ -76,7 +76,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     cameraIndex += 1
                 }
                 val camera = cameras[cameraIndex]
-                runBlocking { photo?.selectCamera(camera) }
+                photo?.selectCamera(camera)
             }
         }
         binding?.flashlight?.setOnClickListener {

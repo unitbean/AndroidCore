@@ -48,5 +48,5 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:${Deps.coroutinesVer}")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }

@@ -7,7 +7,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageCapture
-import com.google.common.net.MediaType
 import java.io.File
 import java.io.OutputStream
 import java.text.SimpleDateFormat
@@ -40,7 +39,7 @@ class CameraExternalStorage(
     private val filename: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
         .format(System.currentTimeMillis()),
     private val relativeFolder: String = Environment.DIRECTORY_PICTURES,
-    private val mimeType: String = MediaType.JPEG.toString()
+    private val mimeType: String = "image/jpeg"
 ) : CameraOutputVariant() {
     override fun toOptions(context: Context): ImageCapture.OutputFileOptions {
         val contentValues = ContentValues().apply {
