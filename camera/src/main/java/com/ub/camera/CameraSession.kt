@@ -9,6 +9,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
@@ -28,6 +29,8 @@ import kotlin.coroutines.suspendCoroutine
  * Can be used in any types of places
  *
  * Support only taking a photo with calling [takePhoto]
+ *
+ * You can use [LifecycleCameraController] instead of this
  *
  * Source links: [reference](https://developer.android.com/codelabs/camerax-getting-started), [samples](https://github.com/android/camera-samples)
  *
