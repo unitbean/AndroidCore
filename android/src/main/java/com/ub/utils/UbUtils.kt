@@ -149,6 +149,10 @@ fun isValidEmail(email: String): Boolean {
  *
  * [ICanHazIp](http://icanhazip.com)
  *
+ * [TrackIp](http://www.trackip.net/ip) IPv4/v6
+ *
+ * [IPAPI](https://ipapi.co/ip) IPv4/v6
+ *
  * @see [java.net.InetAddress] for working with type of address
  */
 @RequiresPermission(Manifest.permission.INTERNET)
