@@ -41,7 +41,7 @@ class CameraSession(
 
     private var imageCapture: ImageCapture? = null
     private var selectedCamera: CameraInfo? = null
-    private var camera: Camera? = null
+    internal var camera: Camera? = null
 
     private val _state = MutableStateFlow(CameraState())
     val state = _state.asStateFlow()
@@ -143,6 +143,17 @@ class CameraSession(
         camera = cameraProvider.bindToLifecycle(
             lifecycleOwner, cameraSelector, preview, imageCapture
         )
+        camera?.cameraInfo?.zoomState?.observe(lifecycleOwner) { zoom ->
+            _state.update { state ->
+                state.copy(
+                    zoom = state.zoom.copy(
+                        current = zoom.zoomRatio,
+                        minimum = zoom.minZoomRatio,
+                        maximum = zoom.maxZoomRatio
+                    )
+                )
+            }
+        }
         _state.update { state ->
             state.copy(
                 isFlashIsAvailable = camera?.cameraInfo?.hasFlashUnit() ?: false,

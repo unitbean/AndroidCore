@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.ub.camera.CameraSession
 import com.ub.camera.CameraExternalStorage
 import com.ub.camera.CameraOutputStream
+import com.ub.camera.setupExtensions
 import com.ub.utils.R
 import com.ub.utils.createUriReadyForWrite
 import com.ub.utils.databinding.FragmentCameraBinding
@@ -107,9 +108,16 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     binding?.flashlight?.isEnabled = state.isFlashIsAvailable
                     binding?.switchCamera?.isEnabled = state.availableCameras.size > 1
                     binding?.flashlight?.isActivated = state.isTorchEnabled
+                    binding?.zoomState?.text = state.zoom.toString()
                 }
             }
         }
+
+        binding?.previewView?.setupExtensions(
+            session = photo,
+            pinchToZoomEnabled = true,
+            tapToFocusEnabled = true
+        )
 
         if (!allPermissionsGranted()) {
             requestPermissions()

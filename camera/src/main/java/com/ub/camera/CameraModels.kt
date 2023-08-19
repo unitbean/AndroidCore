@@ -13,10 +13,23 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * Represents current camera state
+ */
 data class CameraState(
     val isFlashIsAvailable: Boolean = false,
     val isTorchEnabled: Boolean = false,
-    val availableCameras: List<CameraInfo> = listOf()
+    val availableCameras: List<CameraInfo> = listOf(),
+    val zoom: CameraZoom = CameraZoom()
+)
+
+/**
+ * Represents the zoom state
+ */
+data class CameraZoom(
+    val current: Float = 1.0F,
+    val minimum: Float = 1.0F,
+    val maximum: Float = 1.0F
 )
 
 sealed class CameraOutputVariant {
