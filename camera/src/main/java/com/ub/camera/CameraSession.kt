@@ -32,7 +32,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * You can use [LifecycleCameraController] instead of this
  *
- * Source links: [reference](https://developer.android.com/codelabs/camerax-getting-started), [samples](https://github.com/android/camera-samples)
+ * Source links: [reference](https://developer.android.com/codelabs/camerax-getting-started), [samples](https://github.com/android/camera-samples), [QR code scanning via ZXing](https://medium.com/@msasikanth/qr-scanning-using-camerax-4757ed3687f8)
  *
  * @param lifecycleOwner for automatically handle parents lifecycle; use [androidx.fragment.app.Fragment.viewLifecycleOwner] for fragments
  * @param previewView viewfinder presentation
