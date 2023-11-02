@@ -24,7 +24,7 @@ tasks.dokkaJavadoc.configure {
 
 android {
     namespace = "com.ub.yandex"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21
@@ -57,7 +57,7 @@ android {
 }
 
 dependencies {
-    api("com.yandex.android:maps.mobile:4.3.2-lite")
+    api("com.yandex.android:maps.mobile:4.4.0-lite")
     implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")

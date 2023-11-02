@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CodeInputView">
+        <attr name="android:textSize"/>
+        <attr name="android:textColor"/>
+        <attr name="android:radius"/>
+        <attr name="count" format="integer"/>
+        <attr name="innerPadding" format="dimension"/>
+        <attr name="cellSelectedColor" format="color"/>
+        <attr name="cellBackgroundColor" format="color"/>
+    </declare-styleable>
+</resources>

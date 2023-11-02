@@ -20,6 +20,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.ub.CodeInputView
 import com.ub.utils.BaseApplication
 import com.ub.utils.CNetwork
 import com.ub.utils.R
@@ -31,6 +32,7 @@ import com.ub.utils.spannableBuilder
 import dev.chrisbanes.insetter.Insetter
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Random
 
 class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
@@ -76,6 +78,16 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 padding()
             }
         }
+
+        binding?.input?.setListener(object : CodeInputView.InputListener {
+            override fun onCodeChange(code: String) {
+                Timber.d(code)
+            }
+
+            override fun onCodeFinished(code: String) {
+                Timber.d("Finished with code $code")
+            }
+        })
 
         binding?.root?.let { rootView ->
             Insetter.builder()

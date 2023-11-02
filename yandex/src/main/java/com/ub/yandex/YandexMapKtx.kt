@@ -13,7 +13,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * [YandexMapFragment.setMapReady].
  */
 suspend fun YandexMapFragment.awaitMap(): Map = suspendCancellableCoroutine { continuation ->
-    (this.view as? MapView)?.map?.let { map ->
+    (this.view as? MapView)?.mapWindow?.map?.let { map ->
         continuation.resumeWith(Result.success(map))
         return@suspendCancellableCoroutine
     }

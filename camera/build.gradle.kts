@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.ub.camera"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21
@@ -37,7 +37,7 @@ android {
     }
 }
 
-val cameraxVer = "1.2.3"
+val cameraxVer = "1.3.0"
 
 dependencies {
 
@@ -46,7 +46,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:${cameraxVer}")
     implementation("androidx.camera:camera-lifecycle:${cameraxVer}")
 
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }

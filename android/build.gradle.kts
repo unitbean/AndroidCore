@@ -24,7 +24,7 @@ mavenPublishing {
 
 android {
     namespace = "com.ub.ubutils"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 16
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -61,15 +61,15 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    testImplementation("org.mockito:mockito-core:5.4.0")
+    testImplementation("org.mockito:mockito-core:5.6.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
 
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
-    implementation("androidx.recyclerview:recyclerview:1.3.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
     implementation("androidx.biometric:biometric:1.1.0")

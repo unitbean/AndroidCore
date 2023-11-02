@@ -48,13 +48,13 @@ class YandexMapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.savedCameraPosition?.let { position ->
-            mapView?.map?.move(position)
+            mapView?.mapWindow?.map?.move(position)
         }
         mapView?.let { mapView ->
             val iterator = mapReadyCallbacks.listIterator()
             while (iterator.hasNext()) {
                 val callback = iterator.next()
-                callback.onMapReady(mapView.map)
+                callback.onMapReady(mapView.mapWindow.map)
                 iterator.remove()
             }
         }
@@ -63,14 +63,14 @@ class YandexMapFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         mapView?.let { map ->
-            viewModel.savedCameraPosition = map.map.cameraPosition
+            viewModel.savedCameraPosition = map.mapWindow.map.cameraPosition
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapView?.let { map ->
-            viewModel.savedCameraPosition = map.map.cameraPosition
+            viewModel.savedCameraPosition = map.mapWindow.map.cameraPosition
         }
         apiReaderDelegate.getApiKey()?.let { apiKey ->
             viewModel.apiKey = apiKey

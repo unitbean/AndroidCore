@@ -5,14 +5,14 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import android.util.TypedValue
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.ub.utils.SnowflakesEffect
 
 class SnowImageView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyleAttr: Int = 0
-): ImageView(context, attributeSet, defStyleAttr) {
+): AppCompatImageView(context, attributeSet, defStyleAttr) {
 
     private val snowEffect: SnowflakesEffect = SnowflakesEffect(
         Color.WHITE,
@@ -23,7 +23,7 @@ class SnowImageView @JvmOverloads constructor(
         resources.displayMetrics.density
     )
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         snowEffect.onDraw(this, canvas)
     }
