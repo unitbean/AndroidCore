@@ -1,4 +1,4 @@
-package com.ub
+package com.ub.utils.utils
 
 import android.content.Context
 import android.graphics.Canvas
@@ -19,7 +19,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.use
-import com.ub.ubutils.R
+import com.ub.utils.R
 
 class CodeInputView @JvmOverloads constructor(
     context: Context,

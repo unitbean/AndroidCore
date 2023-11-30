@@ -20,7 +20,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.ub.CodeInputView
+import com.ub.utils.utils.CodeInputView
 import com.ub.utils.BaseApplication
 import com.ub.utils.CNetwork
 import com.ub.utils.R
