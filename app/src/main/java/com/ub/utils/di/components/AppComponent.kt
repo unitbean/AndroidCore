@@ -26,7 +26,7 @@ abstract class AppComponent(private val application: Application) {
     val dataStore: DataStore<Preferences>
         @Provides @AppScope get() = PreferenceDataStoreFactory.create(
             produceFile = {
-                context.preferencesDataStoreFile("expresspanda")
+                context.preferencesDataStoreFile("androidCore")
             }
         )
 }

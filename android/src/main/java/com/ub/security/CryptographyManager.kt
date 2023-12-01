@@ -7,14 +7,21 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
+import java.math.BigInteger
+import java.nio.ByteBuffer
 import java.security.KeyStore
 import java.security.KeyStoreException
+import java.util.UUID
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.security.auth.x500.X500Principal
+import kotlin.math.abs
 
 /**
+ * [May also be useful](https://habr.com/ru/companies/vk/articles/776728)
+ *
  * @author https://medium.com/androiddevelopers/using-biometricprompt-with-cryptoobject-how-and-why-aace500ccdb7
  */
 @RequiresApi(Build.VERSION_CODES.M)
@@ -57,13 +64,7 @@ interface CryptographyManager {
 fun CryptographyManager(): CryptographyManager = CryptographyManagerImpl()
 
 @RequiresApi(Build.VERSION_CODES.M)
-class CryptographyManagerImpl(
-    private val keystore: String = "AndroidKeyStore",
-    private val encryptionBlockMode: String = KeyProperties.BLOCK_MODE_GCM,
-    private val encryptionPadding: String = KeyProperties.ENCRYPTION_PADDING_NONE,
-    private val encryptionAlgorithm: String = KeyProperties.KEY_ALGORITHM_AES,
-    private val keySize: Int = 256
-) : CryptographyManager {
+class CryptographyManagerImpl : CryptographyManager {
 
     override fun getInitializedCipherForEncryption(keyName: String): Cipher {
         val cipher = getCipher()
@@ -89,26 +90,28 @@ class CryptographyManagerImpl(
     }
 
     private fun getCipher(): Cipher {
-        val transformation = "$encryptionAlgorithm/$encryptionBlockMode/$encryptionPadding"
+        val transformation = "${KeyProperties.KEY_ALGORITHM_AES}/${KeyProperties.BLOCK_MODE_GCM}/${KeyProperties.ENCRYPTION_PADDING_NONE}"
         return Cipher.getInstance(transformation)
     }
 
     private fun getOrCreateSecretKey(keyName: String): SecretKey {
         // If Secretkey was previously created for that keyName, then grab and return it.
-        val keyStore = KeyStore.getInstance(keystore)
+        val keyStore = KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null) // Keystore must be loaded before it can be accessed
         keyStore.getKey(keyName, null)?.let { return it as SecretKey }
 
         // if you reach here, then a new SecretKey must be generated for that keyName
         val keyGenParams = KeyGenParameterSpec.Builder(keyName,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-            .setBlockModes(encryptionBlockMode)
-            .setEncryptionPaddings(encryptionPadding)
-            .setKeySize(keySize)
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .setKeySize(256)
             .setUserAuthenticationRequired(true)
+            .setCertificateSubject(X500Principal("CN=$keyName"))
+            .setCertificateSerialNumber(BigInteger.valueOf(abs(keyName.hashCode()).toLong()))
             .build()
 
-        val keyGenerator = KeyGenerator.getInstance(encryptionAlgorithm, keystore)
+        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         keyGenerator.init(keyGenParams)
         return keyGenerator.generateKey()
     }
@@ -123,9 +126,7 @@ data class EncryptedData(
         if (other !is EncryptedData) return false
 
         if (!ciphertext.contentEquals(other.ciphertext)) return false
-        if (!initializationVector.contentEquals(other.initializationVector)) return false
-
-        return true
+        return initializationVector.contentEquals(other.initializationVector)
     }
 
     override fun hashCode(): Int {
@@ -141,3 +142,8 @@ fun removeKeyFromKeystore(keyName: String, keyStoreName: String = "AndroidKeySto
     keyStore.load(null)
     keyStore.deleteEntry(keyName)
 }
+
+fun UUID.asByteArray(): ByteArray = ByteBuffer.wrap(ByteArray(16)).apply {
+    putLong(mostSignificantBits)
+    putLong(leastSignificantBits)
+}.array()

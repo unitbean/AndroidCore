@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import me.tatarka.inject.annotations.Inject
+import timber.log.Timber
+import kotlin.text.Charsets.UTF_8
 
 @Inject
 class BiometricViewModel(
@@ -31,9 +33,13 @@ class BiometricViewModel(
 ) : AndroidViewModel(application) {
 
     val encryptedValueFlow = dataStore.data.map { preferences ->
+        val savedEncryptedString = preferences[stringPreferencesKey(ENCRYPTED)] ?: return@map null
+        val splittedValue = savedEncryptedString.split(';')
+        val initializationVector = Base64.decode(splittedValue[0].toByteArray(UTF_8), Base64.DEFAULT)
+        val ciphertext = Base64.decode(splittedValue[1].toByteArray(UTF_8), Base64.DEFAULT)
         EncryptedData(
-            ciphertext = preferences[stringPreferencesKey(ENCRYPTED_VALUE)]?.let { Base64.decode(it, Base64.DEFAULT) } ?: return@map null,
-            initializationVector = preferences[stringPreferencesKey(IV)]?.let { Base64.decode(it, Base64.DEFAULT) } ?: return@map null
+            ciphertext = ciphertext,
+            initializationVector = initializationVector
         )
     }.stateIn(
         scope = viewModelScope,
@@ -58,8 +64,7 @@ class BiometricViewModel(
             } else {
                 dataStore.updateData { preferences ->
                     preferences.toMutablePreferences().apply {
-                        remove(stringPreferencesKey(ENCRYPTED_VALUE))
-                        remove(stringPreferencesKey(IV))
+                        remove(stringPreferencesKey(ENCRYPTED))
                     }
                 }
             }
@@ -68,14 +73,17 @@ class BiometricViewModel(
 
     fun saveEncryptedValue(encryptedResult: EncryptedData) {
         withUseCaseScope(
-            onError = { error -> _errorFlow.emit(error.message) }
+            onError = { error ->
+                Timber.e(error, "Biometry encrypt: %s", error.message)
+                _errorFlow.emit(error.message)
+            }
         ) {
             dataStore.updateData { preferences ->
                 preferences.toMutablePreferences().apply {
-                    val encryptedString = Base64.encodeToString(encryptedResult.ciphertext, Base64.DEFAULT)
-                    set(stringPreferencesKey(ENCRYPTED_VALUE), encryptedString)
+                    val encryptedValue = Base64.encodeToString(encryptedResult.ciphertext, Base64.DEFAULT)
                     val ivString = Base64.encodeToString(encryptedResult.initializationVector, Base64.DEFAULT)
-                    set(stringPreferencesKey(IV), ivString)
+                    val encryptedString = "$ivString;$encryptedValue"
+                    set(stringPreferencesKey(ENCRYPTED), encryptedString)
                 }
             }
         }
@@ -83,7 +91,10 @@ class BiometricViewModel(
 
     fun doDecrypt() {
         withUseCaseScope(
-            onError = { error -> _errorFlow.emit(error.message) }
+            onError = { error ->
+                Timber.e(error, "Biometry decrypt: %s", error.message)
+                _errorFlow.emit(error.message)
+            }
         ) {
             encryptedValueFlow.value?.let { encryptedValue ->
                 _toDecryptFlow.emit(encryptedValue)
@@ -93,13 +104,13 @@ class BiometricViewModel(
 
     fun onError(error: Throwable) {
         withUseCaseScope {
+            Timber.e(error, "Biometry error: %s", error.message)
             _errorFlow.update { error.message ?: error.cause?.message ?: error.toString() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && error is KeyPermanentlyInvalidatedException) {
                 removeKeyFromKeystore(keyName = "androidCore")
                 dataStore.updateData { preferences ->
                     preferences.toMutablePreferences().apply {
-                        remove(stringPreferencesKey(ENCRYPTED_VALUE))
-                        remove(stringPreferencesKey(IV))
+                        remove(stringPreferencesKey(ENCRYPTED))
                     }
                 }
             }
@@ -107,7 +118,6 @@ class BiometricViewModel(
     }
 
     companion object {
-        private const val ENCRYPTED_VALUE = "encrypted_value"
-        private const val IV = "initialization_vector"
+        private const val ENCRYPTED = "encrypted"
     }
 }

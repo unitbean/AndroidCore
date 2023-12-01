@@ -1,6 +1,7 @@
 package com.ub.utils.ui.biometric
 
 import android.os.Bundle
+import android.util.Base64
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -74,7 +75,14 @@ class BiometricFragment : Fragment(R.layout.fragment_biometric) {
             }
             launch {
                 viewModel.encryptedValueFlow.collect { encryptedValue ->
-                    binding?.encryptedText?.text = Arrays.toString(encryptedValue?.ciphertext)
+                    binding?.encryptedText?.text = buildString {
+                        encryptedValue?.let { value ->
+                            append(Base64.encodeToString(value.initializationVector, Base64.DEFAULT))
+                            append('\n')
+                            append('\n')
+                            append(Base64.encodeToString(value.ciphertext, Base64.DEFAULT))
+                        }
+                    }
                     binding?.doDecrypt?.isEnabled = encryptedValue != null
                     if (encryptedValue != null) {
                         binding?.errors?.text = null

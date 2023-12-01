@@ -58,7 +58,7 @@ class MainViewModel(
 
     private fun load() {
         withUseCaseScope(
-            onError = { e -> Timber.e("POST", e.message ?: "Error", e) }
+            onError = { e -> Timber.e(e, "POST %s", e.message ?: "Error") }
         ) {
             val posts = interactor.loadPosts()
             list.renew(posts)
@@ -76,7 +76,7 @@ class MainViewModel(
 
     private fun networkTest(context: Context) {
         withUseCaseScope(
-            onError = { e -> Timber.e("NetworkTest", e.message, e) }
+            onError = { e -> Timber.e(e, "NetworkTest %s", e.message) }
         ) {
             val network = CNetwork(context)
             network.startListener().collect {
@@ -87,7 +87,7 @@ class MainViewModel(
 
     fun cachePickedImage(uri: Uri) {
         withUseCaseScope(
-            onError = { e -> Timber.e("CacheImage", e.message, e) }
+            onError = { e -> Timber.e(e, "CacheImage %s", e.message) }
         ) {
             val context = getApplication<BaseApplication>()
             val nameWithExtension = context.getFileNameFromUri(uri)
@@ -114,13 +114,13 @@ class MainViewModel(
             context.deleteFile(file, "${context.packageName}.core.fileprovider")
         }
         removedList?.firstOrNull { false }?.let {
-            Timber.e("RemoveCached", "Cached files was not be deleted completely")
+            Timber.e("RemoveCached %s", "Cached files was not be deleted completely")
         }
     }
 
     private fun loadImage() {
         withUseCaseScope(
-            onError = { e -> Timber.e("ImageDownload", e.message, e) }
+            onError = { e -> Timber.e(e, "ImageDownload %s", e.message) }
         ) {
             val url = testAes(urlToLoad)
             val image = interactor.loadImage(url)
@@ -130,7 +130,7 @@ class MainViewModel(
 
     private fun testAes(textToTest: String): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Timber.d("AES/GCM", "Encryption test started")
+            Timber.d("AES/GCM %s", "Encryption test started")
             val startTime = SystemClock.uptimeMillis()
             val key = "test".toSecretKey()
             val encryption: AuthenticatedEncryption = AesGcmEncryption()
@@ -139,14 +139,14 @@ class MainViewModel(
                 key
             )
             val encryptTime = SystemClock.uptimeMillis()
-            Timber.d("AES/GCM", "Time to encrypt is ${encryptTime - startTime}")
+            Timber.d("AES/GCM %s", "Time to encrypt is ${encryptTime - startTime}")
             val decryption: AuthenticatedEncryption = AesGcmEncryption()
             val decrypted = decryption.decrypt(
                 encrypted,
                 key
             )
             val decryptTime = SystemClock.uptimeMillis()
-            Timber.d("AES/GCM", "Time to decrypt is ${decryptTime - encryptTime}")
+            Timber.d("AES/GCM %s", "Time to decrypt is ${decryptTime - encryptTime}")
             return String(decrypted)
         } else textToTest
     }

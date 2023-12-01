@@ -1,73 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.biometric.BiometricFragment">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/errors"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="?attr/colorError"
+        android:layout_marginHorizontal="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/input_field_layout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="@tools:sample/full_names"
+        tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/errors"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_field_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/do_encrypt"
+        app:layout_constraintTop_toBottomOf="@+id/errors">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:textColor="@android:color/holo_red_light"
-            android:visibility="gone"
-            tools:text="@tools:sample/full_names"
-            tools:visibility="visible"/>
+            android:hint="@string/text_to_encrypt" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_field_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp">
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/do_encrypt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/encrypt_action"
+        app:layout_constraintBottom_toTopOf="@+id/encrypted_text"
+        app:layout_constraintEnd_toStartOf="@+id/do_decrypt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_field_layout" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/text_to_encrypt"/>
-        </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/do_decrypt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/decrypt_action"
+        app:layout_constraintBottom_toBottomOf="@+id/do_encrypt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/do_encrypt"
+        app:layout_constraintTop_toTopOf="@+id/do_encrypt" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/do_encrypt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/encrypt_action"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"/>
-
-        <TextView
-            android:id="@+id/encrypted_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/encrypted_text_will_be_here"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/do_decrypt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/decrypt_action"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/encrypted_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/encrypted_text_will_be_here"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/do_encrypt" />
 </androidx.constraintlayout.widget.ConstraintLayout>

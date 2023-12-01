@@ -11,7 +11,6 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -20,6 +19,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ub.utils.utils.CodeInputView
 import com.ub.utils.BaseApplication
 import com.ub.utils.CNetwork
@@ -126,7 +126,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun onDone() {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setMessage(requireContext().spannableBuilder {
                 append("20sp text with underline and strikethrough")
                 partialSpan("20sp text") {
@@ -194,7 +194,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     }
 
     private fun onIsEquals(equals: Boolean) {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setMessage("${requireContext().getString(R.string.app_name)}. Equals $equals")
             .show()
     }
