@@ -9,6 +9,7 @@ import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import kotlin.text.Charsets.UTF_8
 
 interface AuthenticatedEncryption {
     fun encrypt(bytesToEncrypt: ByteArray, keyToEncrypt: ByteArray, associatedData: ByteArray? = null): ByteArray
@@ -102,5 +103,5 @@ class AesGcmEncryption(
  * @param length размерность ключа. По-умолчанию имеет значение 16 бит
  */
 fun Any.toSecretKey(length: Int = 16): ByteArray = ByteBuffer.allocate(length).apply {
-    put(this@toSecretKey.hashCode().toString().toByteArray(charset("UTF-8")))
+    put(this@toSecretKey.hashCode().toString().toByteArray(UTF_8))
 }.array()

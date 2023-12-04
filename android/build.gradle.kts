@@ -79,6 +79,5 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.3.6")
     implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
     implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
 }

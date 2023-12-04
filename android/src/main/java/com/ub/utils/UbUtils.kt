@@ -221,6 +221,7 @@ fun isBrokenSamsungDevice(): Boolean {
 /**
  * Прячет клавиатуру
  */
+@Deprecated("Please use [Window.keyboardForView]")
 fun hideSoftKeyboard(context: Context) {
     try {
         val currentFocus = (context as? Activity)?.currentFocus
@@ -235,6 +236,7 @@ fun hideSoftKeyboard(context: Context) {
 /**
  * Открывает клавиатуру
  */
+@Deprecated("Please use [Window.keyboardForView]")
 fun openSoftKeyboard(context: Context, view: View) {
     val inputMethodManager = ContextCompat.getSystemService(context, InputMethodManager::class.java)
     inputMethodManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
@@ -319,7 +321,7 @@ fun isGpsIsEnabled(context: Context): Boolean {
  * В случае отмены операции с помощью [okhttp3.Call.cancel] сетевой запрос отменяется, если возможно
  */
 suspend inline fun <T> OkHttpClient.download(url: String, crossinline objectMapper: (byteStream: InputStream?) -> T?) =
-    suspendCancellableCoroutine<T?> { continuation ->
+    suspendCancellableCoroutine { continuation ->
         val request = Request.Builder().url(url).build()
         val call = newCall(request)
         call.enqueue(object : Callback {
@@ -365,6 +367,7 @@ suspend inline fun <T> OkHttpClient.download(url: String, crossinline objectMapp
  * @param logout - action that must be execute on failure of updating access-token
  * @param action - action that desired to execute with update access-token wrapped logic. This also return result value of this function [T]
  */
+@Deprecated("Please use [okhttp3.Authenticator] for refreshing token")
 suspend inline fun <T, U> retryWithRefreshToken(
     crossinline updateToken: suspend (String) -> U,
     refreshToken: String,

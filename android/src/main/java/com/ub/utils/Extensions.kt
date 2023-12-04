@@ -5,9 +5,6 @@ package com.ub.utils
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Build
-import android.os.Bundle
-import android.os.Parcelable
 import android.util.Property
 import android.util.TypedValue
 import android.view.View
@@ -28,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.*
 
 fun Context.spToPx(sp: Float): Float {
@@ -36,7 +32,7 @@ fun Context.spToPx(sp: Float): Float {
 }
 
 fun View.dpToPx(dp: Int): Float {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), this.context.resources.displayMetrics)
+    return this.context.dpToPx(dp)
 }
 
 fun Context.dpToPx(dp: Int): Float {
@@ -44,8 +40,6 @@ fun Context.dpToPx(dp: Int): Float {
 }
 
 fun AlertDialog.isNotShowing(): Boolean = !isShowing
-
-fun Disposable.isNotDisposed(): Boolean = !isDisposed
 
 fun <T> MutableList<T>.renew(list: Collection<T>): MutableList<T> {
     clear()
@@ -160,19 +154,3 @@ fun <T : ViewModel>provideSavedFactory(
             return customFactory.invoke(extras.createSavedStateHandle()) as T
         }
     }
-
-@Suppress("DEPRECATION")
-@Deprecated(
-    message = "Use BundleCompat.getParcelable from androidx.core:core:1.10.0",
-    replaceWith = ReplaceWith(
-        expression = "getParcelable(this, key, clazz)",
-        imports = ["androidx.core.os.BundleCompat.getParcelable"]
-    )
-)
-fun <T : Parcelable> Bundle.getParcelableCompat(key: String, clazz: Class<T>): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelable(key, clazz)
-    } else {
-        getParcelable(key)
-    }
-}
