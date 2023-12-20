@@ -41,7 +41,6 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
 
     val specFlow: StateFlow<NetworkSpec> = connectionState
         .onEach { delay(AVAILABILITY_LAG) }
-        .onEach { println(it); println(manager?.activeNetwork) }
         .map { state ->
             state[manager?.activeNetwork]?.takeIf {
                 it.isFactTransport || state.values.any(LocalNetwork::isFactTransport)
