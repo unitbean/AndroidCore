@@ -1,8 +1,13 @@
 package com.ub.utils.ui.main
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration.UI_MODE_NIGHT_MASK
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -20,11 +25,12 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ub.utils.utils.CodeInputView
 import com.ub.utils.BaseApplication
-import com.ub.utils.CNetwork
+import com.ub.utils.NetworkSpec
 import com.ub.utils.R
 import com.ub.utils.UbNotify
+import com.ub.utils.VpnAware
+import com.ub.utils.colorize
 import com.ub.utils.databinding.FragmentMainBinding
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.utils.provideFactory
@@ -32,7 +38,6 @@ import com.ub.utils.spannableBuilder
 import dev.chrisbanes.insetter.Insetter
 import dev.chrisbanes.insetter.applyInsetter
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Random
 
 class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
@@ -78,16 +83,6 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 padding()
             }
         }
-
-        binding?.input?.setListener(object : CodeInputView.InputListener {
-            override fun onCodeChange(code: String) {
-                Timber.d(code)
-            }
-
-            override fun onCodeFinished(code: String) {
-                Timber.d("Finished with code $code")
-            }
-        })
 
         binding?.root?.let { rootView ->
             Insetter.builder()
@@ -176,17 +171,37 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
             .show(id = random.nextInt())
     }
 
-    private fun onShowConnectivityChange(state: String) {
+    private fun onShowConnectivityChange(spec: NetworkSpec) {
         binding?.statuses?.apply {
             removeAllViews()
-            val connectivityIcon = when (state) {
-                CNetwork.NetworkState.ESTABLISH -> ResourcesCompat.getDrawable(resources, R.drawable.outline_hourglass_empty_24, context?.theme)
-                CNetwork.NetworkState.ACTIVE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_signal_cellular_alt_24, context?.theme)
-                CNetwork.NetworkState.DISABLE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_error_outline_24, context?.theme)
-                CNetwork.NetworkState.CAPTIVE -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_login_24, context?.theme)
+            val isDarkMode = this.context?.isDarkMode ?: false
+            val connectivityIcon = when (spec) {
+                NetworkSpec.Connecting -> ResourcesCompat.getDrawable(resources, R.drawable.outline_hourglass_empty_24, context?.theme)
+                is NetworkSpec.Active -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_signal_cellular_alt_24, context?.theme)
+                NetworkSpec.Disabled -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_error_outline_24, context?.theme)
+                is NetworkSpec.Captive -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_login_24, context?.theme)
                 else -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_device_unknown_24, context?.theme)
             }
+            if ((spec as? VpnAware)?.isVpn == true) {
+                val isVpn = ResourcesCompat.getDrawable(resources, R.drawable.ic_vector_vpn_key, context?.theme)
+                val vpn = ImageView(requireContext()).apply {
+                    val color = if (isDarkMode) {
+                        Color.WHITE
+                    } else {
+                        Color.BLACK
+                    }
+                    isVpn?.colorize(color)
+                    setImageDrawable(isVpn)
+                }
+                addView(vpn)
+            }
             val connectivity = ImageView(requireContext()).apply {
+                val color = if (isDarkMode) {
+                    Color.WHITE
+                } else {
+                    Color.BLACK
+                }
+                connectivityIcon?.colorize(color)
                 setImageDrawable(connectivityIcon)
             }
             addView(connectivity)
@@ -218,4 +233,11 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
             R.id.btn_clear_cache -> viewModel.removeCachedFiles()
         }
     }
+
+    private val Context.isDarkMode: Boolean?
+        get() = when (resources.configuration.uiMode and UI_MODE_NIGHT_MASK) {
+            UI_MODE_NIGHT_NO -> false
+            UI_MODE_NIGHT_YES -> true
+            else -> null
+        }
 }

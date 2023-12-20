@@ -64,7 +64,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.mockito:mockito-core:5.8.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
 
@@ -76,7 +76,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
     implementation("androidx.biometric:biometric:1.1.0")
-    implementation("androidx.exifinterface:exifinterface:1.3.6")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
     implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")

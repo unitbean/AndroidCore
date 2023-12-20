@@ -1,167 +1,156 @@
-@file:Suppress("UNUSED", "DEPRECATION")
+@file:Suppress("UNUSED")
 
 package com.ub.utils
 
-import android.Manifest.permission.ACCESS_NETWORK_STATE
-import android.content.BroadcastReceiver
+import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL
-import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
-import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED
-import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED
-import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN
-import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
-import android.net.NetworkCapabilities.TRANSPORT_BLUETOOTH
-import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
-import android.net.NetworkCapabilities.TRANSPORT_USB
-import android.net.NetworkCapabilities.TRANSPORT_WIFI
-import android.net.NetworkInfo
 import android.net.NetworkRequest
-import android.net.wifi.WifiManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.annotation.StringDef
 import androidx.core.content.ContextCompat
-import com.ub.utils.CNetwork.NetworkState
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
-/**
- * Класс, инкаспулирующий в себе получение изменений состояния активной сети
- * Умеет работать с [Build.VERSION_CODES.LOLLIPOP] и выше через акутальное API [ConnectivityManager.NetworkCallback],
- * и по обратной совместимости на [Build.VERSION_CODES.KITKAT] и ниже через устаревший [BroadcastReceiver]
- *
- * Основной метод [startListener] возвращает [Flow] со значениями [NetworkState].
- * Значения могут дублироваться, на [Flow] желательно применить [kotlinx.coroutines.flow.distinctUntilChanged]
- *
- * Сценарии, которые были учтены в работе:
- * 1. [TRANSPORT_WIFI] - соединение установлено и может передавать данные
- * 2. [TRANSPORT_WIFI] - соединение установлено и не может передавать данные (создать WiFi-точку на телефоне без SIM-карты)
- * 3. [TRANSPORT_WIFI] - соединение установлено и при любом запросе происходит редирект на [NET_CAPABILITY_CAPTIVE_PORTAL] -
- * страницу регистрации, например. ДомРу такое практикует с публичными WiFi-точками доступа
- * 4. No transport - соединение любого типа не установлено, передача данных недоступна
- * 5. [TRANSPORT_CELLULAR] - соединение установлено, передача данных доступна
- * 6. [TRANSPORT_CELLULAR] - соединение установлено, передача данных недоступна (не подключена услуга интернета, прочие сбои у оператора)
- * 7. [TRANSPORT_CELLULAR] (в роуминге) - соединение установлено, но ограничено системной защитой от случайной активации роуминга
- * 8. [TRANSPORT_BLUETOOTH] - соединение установлено, передача данных доступна
- * 9. [TRANSPORT_BLUETOOTH] - соединение установлено, передача данных недоступна (bluetooth-доступ без SIM-карты, либо сценарий из п.6)
- * 10. [TRANSPORT_USB] - соединение установлено, передача данных доступна
- * 11. Прочий доступ (не тестировался) - теоретически должен работать, если на [Build.VERSION_CODES.LOLLIPOP] и выше
- * в [NetworkCapabilities] будет среди прочего [NetworkCapabilities.NET_CAPABILITY_VALIDATED].
- * На [Build.VERSION_CODES.KITKAT] работать тоже, скорее всего, будет из-за топорности API, там и ломаться нечему
- *
- * При завершении работы с классом происходит автоматическое закрытие слушателя в момент закрытия потока.
- *
- * Известные проблемы:
- * 1. На некоторых устройствах (Asus API 21) не срабатывает [ConnectivityManager.NetworkCallback.onCapabilitiesChanged],
- * из-за чего не корректно отрабатывают сценарии 2 и 3
- * 2. А на API <= [Build.VERSION_CODES.KITKAT] сценарии 2 и 3 вообще не работают, так как у [NetworkInfo] нет соответсвующего API
- */
-class CNetwork(
-    private val context: Context
-) {
-    private val manager: ConnectivityManager? by lazy {
-        ContextCompat.getSystemService(context, ConnectivityManager::class.java)
-    }
+@RequiresApi(Build.VERSION_CODES.M)
+@Suppress("MissingPermission")
+class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) constructor(
+    context: Context,
+): CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
-    @NetworkState
-    @Suppress("DEPRECATION")
-    @RequiresPermission(value = ACCESS_NETWORK_STATE)
-    fun startListener(): Flow<String> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            callbackFlow {
-                val callback = object : ConnectivityManager.NetworkCallback() {
-                    override fun onAvailable(network: Network) {
-                        trySend(NetworkState.ESTABLISH)
-                    }
+    private val manager: ConnectivityManager? = ContextCompat.getSystemService(context, ConnectivityManager::class.java)
 
-                    override fun onLost(network: Network) {
-                        trySend(NetworkState.DISABLE)
-                    }
-
-                    override fun onUnavailable() {
-                        trySend(NetworkState.DISABLE)
-                    }
-
-                    override fun onCapabilitiesChanged(
-                        network: Network,
-                        networkCapabilities: NetworkCapabilities
-                    ) {
-                        trySend(
-                            when {
-                                networkCapabilities.hasTransport(TRANSPORT_CELLULAR)
-                                    && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_CONGESTED)
-                                    && networkCapabilities.hasCapability(NET_CAPABILITY_NOT_SUSPENDED)
-                                -> if (networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED)
-                                    && networkCapabilities.hasCapability(NET_CAPABILITY_INTERNET)
-                                ) {
-                                    NetworkState.ACTIVE
-                                } else {
-                                    NetworkState.ESTABLISH
-                                }
-                                networkCapabilities.hasTransport(TRANSPORT_WIFI)
-                                    && networkCapabilities.hasCapability(NET_CAPABILITY_CAPTIVE_PORTAL) -> NetworkState.CAPTIVE
-                                networkCapabilities.hasCapability(NET_CAPABILITY_VALIDATED)
-                                    && networkCapabilities.hasCapability(NET_CAPABILITY_INTERNET) -> NetworkState.ACTIVE
-                                else -> NetworkState.DISABLE
-                            }
-                        )
-                    }
-                }
-                val request = NetworkRequest.Builder()
-                    .build()
-                manager?.registerNetworkCallback(request, callback)
-
-                awaitClose {
-                    manager?.unregisterNetworkCallback(callback)
-                }
-            }
-        } else {
-            callbackFlow {
-                val networkReceiver: BroadcastReceiver by lazy {
-                    object : BroadcastReceiver() {
-                        @RequiresPermission(value = ACCESS_NETWORK_STATE)
-                        override fun onReceive(context: Context, intent: Intent) {
-                            trySend(
-                                if (manager?.activeNetworkInfo?.isAvailable == true) NetworkState.ACTIVE else NetworkState.DISABLE
-                            )
-                        }
-                    }
-                }
-
-                val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-                filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
-                context.registerReceiver(networkReceiver, filter)
-
-                awaitClose {
-                    context.unregisterReceiver(networkReceiver)
-                }
-            }
-        }
-    }
-
-    @StringDef(
-        NetworkState.ESTABLISH,
-        NetworkState.ACTIVE,
-        NetworkState.DISABLE,
-        NetworkState.CAPTIVE
+    private val connectionState: MutableStateFlow<Map<Network, NetworkSpec>> = MutableStateFlow(
+        manager?.activeNetwork?.to(manager.getInternetState())?.let { initialState ->
+            mapOf(initialState)
+        } ?: mapOf()
     )
-    @Retention(AnnotationRetention.SOURCE)
-    annotation class NetworkState {
-        companion object {
-            const val ESTABLISH = "ESTABLISH"
-            const val ACTIVE = "ACTIVE"
-            const val DISABLE = "DISABLE"
-            const val CAPTIVE = "CAPTIVE"
+
+    val specFlow: StateFlow<NetworkSpec> = connectionState
+        .onEach { delay(AVAILABILITY_LAG) }
+        .onEach { println(it); println(manager?.activeNetwork) }
+        .map { state -> state[manager?.activeNetwork] ?: NetworkSpec.Disabled }
+        .stateIn(
+            scope = this,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = connectionState.value.values.firstOrNull() ?: NetworkSpec.Disabled
+        )
+
+    val isVpnEnabled: Boolean
+        get() = (manager?.getInternetState() as? VpnAware)?.isVpn ?: false
+
+    private val callback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            connectionState.update { state ->
+                if (!state.containsKey(network)) {
+                    state + (network to NetworkSpec.Connecting)
+                } else state
+            }
         }
+
+        override fun onLost(network: Network) {
+            connectionState.update { state ->
+                state - network
+            }
+        }
+
+        override fun onCapabilitiesChanged(
+            network: Network,
+            networkCapabilities: NetworkCapabilities
+        ) {
+            connectionState.update { state ->
+                state + (network to networkCapabilities.getStateByCapabilities())
+            }
+        }
+    }
+
+    init {
+        connectionState.run {
+            onCompletion {
+                manager?.unregisterNetworkCallback(callback)
+            }
+            launchIn(this@CNetwork)
+        }
+        val request = NetworkRequest.Builder()
+            .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+            .build()
+        manager?.registerNetworkCallback(request, callback)
+    }
+
+    private fun ConnectivityManager?.getInternetState(): NetworkSpec {
+        val capabilities = this?.getNetworkCapabilities(activeNetwork)
+        return capabilities?.getStateByCapabilities() ?: NetworkSpec.Disabled
+    }
+
+    private fun NetworkCapabilities.getStateByCapabilities(): NetworkSpec = when {
+        hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            && hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL) -> {
+            NetworkSpec.Captive(isVpn = hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+        }
+        hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+            && hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED)
+            && hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED) -> {
+            if (hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                && hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            ) {
+                NetworkSpec.Active(isVpn = hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+            } else {
+                NetworkSpec.Connecting
+            }
+        }
+        hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            && hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> {
+            NetworkSpec.Active(isVpn = hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+        }
+        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> NetworkSpec.Connecting
+        else -> NetworkSpec.Disabled
+    }
+
+    companion object {
+
+        /**
+         * Искусственная задержка для того, чтобы менеджер успел перестроить данные у себя
+         *
+         * Иначе в [ConnectivityManager.NetworkCallback.onLost] прилетает null как активный [Network],
+         * например, при отключении [NetworkCapabilities.TRANSPORT_WIFI] и переходе на [NetworkCapabilities.TRANSPORT_CELLULAR]
+         */
+        private const val AVAILABILITY_LAG = 100L
     }
 }
 
-val Context.cNetwork: CNetwork
-    get() = CNetwork(this)
+sealed class NetworkSpec {
+    sealed class Established : NetworkSpec(), VpnAware
+
+    data class Active(
+        override val isVpn: Boolean
+    ) : Established()
+
+    /**
+     * Если попали принудительно на портал регистрации. По факту интернет есть, но использовать его не получается
+     */
+    data class Captive(
+        override val isVpn: Boolean
+    ) : Established()
+
+    data object Connecting : NetworkSpec()
+
+    data object Disabled : NetworkSpec()
+}
+
+sealed interface VpnAware {
+    val isVpn: Boolean
+}
