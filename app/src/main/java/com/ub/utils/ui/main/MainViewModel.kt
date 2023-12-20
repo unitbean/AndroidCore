@@ -45,11 +45,9 @@ class MainViewModel(
     private val network: CNetwork? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         CNetwork(application)
     } else null
-    private val _connectivity = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    val connectivity = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         network?.specFlow ?: MutableStateFlow(NetworkSpec.Disabled)
     } else MutableStateFlow(NetworkSpec.Disabled)
-
-    val connectivity = _connectivity
 
     private val _myIp = MutableSharedFlow<String>()
     val myIp = _myIp.asSharedFlow()
