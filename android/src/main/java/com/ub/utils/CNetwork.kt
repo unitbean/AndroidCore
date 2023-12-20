@@ -137,7 +137,6 @@ private fun NetworkCapabilities.getStateByCapabilities(): NetworkSpec = when {
         && hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> {
         NetworkSpec.Active(isVpn = hasTransport(NetworkCapabilities.TRANSPORT_VPN))
     }
-    hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> NetworkSpec.Connecting
     else -> NetworkSpec.Disabled
 }
 
