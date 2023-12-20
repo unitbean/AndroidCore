@@ -141,7 +141,10 @@ private fun NetworkCapabilities.getStateByCapabilities(): NetworkSpec = when {
 }
 
 /**
- * @param isFactTransport нужен для определения, не является ли данная сеть VPN only. Такое наблюдается на устройствах в районе SDK~26
+ * @param isFactTransport нужен для определения, не является ли данная сеть VPN only.
+ * Такое наблюдается на устройствах при SDK~26 как нормальное поведение, а также на
+ * более старших версиях в прочих сценариях, если оставляем подключенным только VPN
+ * и отключаем прочие сети
  */
 private data class LocalNetwork(
     val isFactTransport: Boolean,
