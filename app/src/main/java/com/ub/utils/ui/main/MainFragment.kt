@@ -107,7 +107,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 viewModel.connectivity.collect { onShowConnectivityChange(it) }
             }
             launch {
-                viewModel.isEquals.collect { onIsEquals(it) }
+                viewModel.myIp.collect { onMyIp(it) }
             }
             launch {
                 viewModel.image.collect { showImage(it) }
@@ -155,7 +155,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 }
             })
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.isEquals()
+                viewModel.myIp()
             }
             .show()
     }
@@ -208,9 +208,10 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         }
     }
 
-    private fun onIsEquals(equals: Boolean) {
+    private fun onMyIp(myIp: String) {
         MaterialAlertDialogBuilder(requireContext())
-            .setMessage("${requireContext().getString(R.string.app_name)}. Equals $equals")
+            .setTitle(R.string.app_name)
+            .setMessage("My ip $myIp")
             .show()
     }
 

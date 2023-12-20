@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import com.ub.utils.containsIgnoreCase
 import com.ub.utils.di.components.MainScope
 import com.ub.utils.di.services.api.responses.PostResponse
+import com.ub.utils.getMyPublicIp
 import me.tatarka.inject.annotations.Inject
+import java.net.InetAddress
 import java.util.*
 
 @Inject
@@ -15,9 +17,11 @@ class MainInteractor(private val repository: IMainRepository) {
         return repository.getPosts()
     }
 
-    fun isEquals(): Boolean {
-        val list = arrayListOf("Test", "TEst", "TESt", "TEST")
-        return list.containsIgnoreCase("test")
+    suspend fun myIp(): String {
+        return getMyPublicIp().fold(
+            onSuccess = InetAddress::toString,
+            onFailure = { throwable: Throwable -> throwable.message ?: throwable::class.java.simpleName }
+        )
     }
 
     fun generatePushContent(list: List<PostResponse>): Pair<String, String> {

@@ -46,8 +46,8 @@ class MainViewModel(
         CNetwork(application).specFlow
     } else MutableStateFlow(NetworkSpec.Disabled)
 
-    private val _isEquals = MutableSharedFlow<Boolean>()
-    val isEquals = _isEquals.asSharedFlow()
+    private val _myIp = MutableSharedFlow<String>()
+    val myIp = _myIp.asSharedFlow()
 
     private val _image = MutableSharedFlow<Bitmap>()
     val image = _image.asSharedFlow()
@@ -91,10 +91,10 @@ class MainViewModel(
         }
     }
 
-    fun isEquals() {
+    fun myIp() {
         withUseCaseScope {
-            val isEquals = interactor.isEquals()
-            _isEquals.emit(isEquals)
+            val myIp = interactor.myIp()
+            _myIp.emit(myIp)
         }
     }
 
