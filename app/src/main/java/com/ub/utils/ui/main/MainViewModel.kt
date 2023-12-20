@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
@@ -43,9 +42,14 @@ class MainViewModel(
     private val _showPush = MutableSharedFlow<Pair<String, String>>()
     val showPush = _showPush.asSharedFlow()
 
-    val connectivity = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        CNetwork(context = application, parentScope = viewModelScope).specFlow
+    private val network: CNetwork? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        CNetwork(application)
+    } else null
+    private val _connectivity = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        network?.specFlow ?: MutableStateFlow(NetworkSpec.Disabled)
     } else MutableStateFlow(NetworkSpec.Disabled)
+
+    val connectivity = _connectivity
 
     private val _myIp = MutableSharedFlow<String>()
     val myIp = _myIp.asSharedFlow()
@@ -70,7 +74,9 @@ class MainViewModel(
     }
 
     fun generatePushContent() {
-        withUseCaseScope {
+        withUseCaseScope(
+            onError = { e -> Timber.e(e, "PushContent %s", e.message) }
+        ) {
             val push = interactor.generatePushContent(list)
             _showPush.emit(push)
         }

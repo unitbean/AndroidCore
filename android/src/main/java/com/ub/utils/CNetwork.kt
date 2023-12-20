@@ -14,31 +14,25 @@ import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.plus
 import java.io.Closeable
 
 @RequiresApi(Build.VERSION_CODES.M)
 @Suppress("MissingPermission")
 class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) constructor(
-    context: Context,
-    parentScope: CoroutineScope? = null
+    context: Context
 ): Closeable {
 
     private val manager: ConnectivityManager? = ContextCompat.getSystemService(context, ConnectivityManager::class.java)
 
-    private val parentJob: Job = Job()
-    private val scope = (parentScope ?: CoroutineScope(Dispatchers.IO)) + parentJob
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val connectionState: MutableStateFlow<Map<Network, LocalNetwork>> = MutableStateFlow(
         manager?.activeNetwork?.to(manager.getInternetState())?.let { initialState ->
@@ -55,7 +49,7 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
         }
         .stateIn(
             scope = scope,
-            started = SharingStarted.WhileSubscribed(5000L),
+            started = SharingStarted.WhileSubscribed(),
             initialValue = connectionState.value.values.firstOrNull()?.takeIf(LocalNetwork::isFactTransport)?.spec ?: NetworkSpec.Disabled
         )
 
@@ -82,22 +76,19 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
     }
 
     init {
-        connectionState.onCompletion {
-            manager?.unregisterNetworkCallback(callback)
-        }
         val request = NetworkRequest.Builder()
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
             .build()
         manager?.registerNetworkCallback(request, callback)
     }
 
+    override fun close() {
+        manager?.unregisterNetworkCallback(callback)
+    }
+
     private fun ConnectivityManager?.getInternetState(): LocalNetwork {
         val capabilities = this?.getNetworkCapabilities(activeNetwork)
         return LocalNetwork(capabilities)
-    }
-
-    override fun close() {
-        parentJob.cancel()
     }
 
     companion object {
