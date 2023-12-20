@@ -14,6 +14,7 @@ import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,14 +25,20 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.plus
+import java.io.Closeable
 
 @RequiresApi(Build.VERSION_CODES.M)
 @Suppress("MissingPermission")
 class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) constructor(
     context: Context,
-): CoroutineScope by CoroutineScope(Dispatchers.IO) {
+    parentScope: CoroutineScope? = null
+): Closeable {
 
     private val manager: ConnectivityManager? = ContextCompat.getSystemService(context, ConnectivityManager::class.java)
+
+    private val parentJob: Job = Job()
+    private val scope = (parentScope ?: CoroutineScope(Dispatchers.IO)) + parentJob
 
     private val connectionState: MutableStateFlow<Map<Network, LocalNetwork>> = MutableStateFlow(
         manager?.activeNetwork?.to(manager.getInternetState())?.let { initialState ->
@@ -47,7 +54,7 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
             }?.spec ?: NetworkSpec.Disabled
         }
         .stateIn(
-            scope = this,
+            scope = scope,
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = connectionState.value.values.firstOrNull()?.takeIf(LocalNetwork::isFactTransport)?.spec ?: NetworkSpec.Disabled
         )
@@ -56,36 +63,27 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
         get() = (manager?.getInternetState()?.spec as? VpnAware)?.isVpn ?: false
 
     private val callback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            connectionState.update { state ->
-                if (!state.containsKey(network)) {
-                    state + (network to LocalNetwork(isFactTransport = false, spec = NetworkSpec.Connecting))
-                } else state
-            }
+        override fun onAvailable(network: Network) = connectionState.update { state ->
+            if (!state.containsKey(network)) {
+                state + (network to LocalNetwork(isFactTransport = false, spec = NetworkSpec.Connecting))
+            } else state
         }
 
-        override fun onLost(network: Network) {
-            connectionState.update { state ->
-                state - network
-            }
+        override fun onLost(network: Network) = connectionState.update { state ->
+            state - network
         }
 
         override fun onCapabilitiesChanged(
             network: Network,
             networkCapabilities: NetworkCapabilities
-        ) {
-            connectionState.update { state ->
-                state + (network to LocalNetwork(networkCapabilities))
-            }
+        ) = connectionState.update { state ->
+            state + (network to LocalNetwork(networkCapabilities))
         }
     }
 
     init {
-        connectionState.run {
-            onCompletion {
-                manager?.unregisterNetworkCallback(callback)
-            }
-            launchIn(this@CNetwork)
+        connectionState.onCompletion {
+            manager?.unregisterNetworkCallback(callback)
         }
         val request = NetworkRequest.Builder()
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
@@ -96,6 +94,10 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
     private fun ConnectivityManager?.getInternetState(): LocalNetwork {
         val capabilities = this?.getNetworkCapabilities(activeNetwork)
         return LocalNetwork(capabilities)
+    }
+
+    override fun close() {
+        parentJob.cancel()
     }
 
     companion object {

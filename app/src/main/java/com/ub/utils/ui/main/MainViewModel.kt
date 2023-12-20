@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
@@ -43,7 +44,7 @@ class MainViewModel(
     val showPush = _showPush.asSharedFlow()
 
     val connectivity = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        CNetwork(application).specFlow
+        CNetwork(context = application, parentScope = viewModelScope).specFlow
     } else MutableStateFlow(NetworkSpec.Disabled)
 
     private val _myIp = MutableSharedFlow<String>()
@@ -124,7 +125,7 @@ class MainViewModel(
         val key = "test".toSecretKey()
         val encryption: AuthenticatedEncryption = AesGcmEncryption()
         val encrypted = encryption.encrypt(
-            urlToLoad.toByteArray(charset("UTF-8")),
+            textToTest.toByteArray(charset("UTF-8")),
             key
         )
         val encryptTime = SystemClock.uptimeMillis()
