@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.io.Closeable
+import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.M)
 @Suppress("MissingPermission")
@@ -31,6 +32,8 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
 ): Closeable {
 
     private val manager: ConnectivityManager? = ContextCompat.getSystemService(context, ConnectivityManager::class.java)
+
+    private var isClosed: Boolean
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -80,10 +83,15 @@ class CNetwork @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) con
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
             .build()
         manager?.registerNetworkCallback(request, callback)
+        isClosed = false
     }
 
     override fun close() {
+        if (isClosed) {
+            throw IOException("CNetwork is already closed")
+        }
         manager?.unregisterNetworkCallback(callback)
+        isClosed = true
     }
 
     private fun ConnectivityManager?.getInternetState(): LocalNetwork {
