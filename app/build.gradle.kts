@@ -1,10 +1,9 @@
 import Common.getLocalProperty
-import org.jetbrains.kotlin.config.KotlinCompilerVersion
 
 plugins {
-    id("com.android.application")
-    kotlin("android")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.devtools.ksp)
 }
 
 android {
@@ -50,52 +49,53 @@ dependencies {
     implementation(project(":android"))
     implementation(project(":yandex"))
     implementation(project(":camera"))
-    implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
+
+    implementation(libs.kotlin)
 
     // testing
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     // android x
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.cardview:cardview:1.0.0")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.vectordrawable:vectordrawable:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.activity:activity-ktx:1.8.2")
-    implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("androidx.biometric:biometric:1.1.0")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.cardview)
+    implementation(libs.material)
+    implementation(libs.androidx.vectordrawable)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.biometric)
 
     // lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // retrofit 2
-    implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
-    implementation("com.squareup.retrofit2:converter-gson:${Deps.retrofitVer}")
-    implementation("com.squareup.retrofit2:adapter-rxjava2:${Deps.retrofitVer}")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.adapter.rxjava2)
 
     // logging interceptor
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation(libs.okhttp3.logging.interceptor)
 
     // rx android
-    implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation(libs.rxandroid)
+    implementation(libs.rxjava)
 
     // Kotlin Inject
-    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:${Deps.kotlinInjectVer}")
-    implementation("me.tatarka.inject:kotlin-inject-runtime:${Deps.kotlinInjectVer}")
+    ksp(libs.kotlin.inject.compiler.ksp)
+    implementation(libs.kotlin.inject.runtime)
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
-    implementation("dev.chrisbanes.insetter:insetter:0.6.1")
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.insetter)
+    implementation(libs.timber)
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
+    debugImplementation(libs.leakcanary.android)
 }

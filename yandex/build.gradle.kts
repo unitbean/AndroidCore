@@ -2,9 +2,9 @@ import com.vanniktech.maven.publish.SonatypeHost
 import Common.getLocalProperty
 
 plugins {
-    id("com.android.library")
-    id("com.vanniktech.maven.publish")
-    kotlin("android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
 }
 
@@ -57,8 +57,8 @@ android {
 }
 
 dependencies {
-    api("com.yandex.android:maps.mobile:4.4.0-lite")
-    implementation("androidx.fragment:fragment-ktx:${Deps.fragmentVer}")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
+    api(libs.maps.mobile)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 }

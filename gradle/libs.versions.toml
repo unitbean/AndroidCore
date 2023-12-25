@@ -1,0 +1,91 @@
+[versions]
+activityKtx = "1.8.2"
+androidGradlePlugin = "8.2.0"
+appcompat = "1.6.1"
+assertjCore = "3.24.2"
+biometric = "1.1.0"
+cameraxVer = "1.3.1"
+cardview = "1.0.0"
+concurrentFuturesKtx = "1.1.0"
+constraintlayout = "2.1.4"
+datastorePreferences = "1.0.0"
+espressoCore = "3.5.1"
+exifinterface = "1.3.7"
+fragmentKtx = "1.6.2"
+insetter = "0.6.1"
+junit = "4.13.2"
+kotlinInject = "0.6.3"
+kotlinxCoroutinesCore = "1.7.3"
+ktx = "1.12.0"
+leakcanaryAndroid = "2.12"
+legacySupportV4 = "1.0.0"
+lifecycleViewmodelKtx = "2.6.2"
+loggingInterceptor = "4.12.0"
+mapsMobile = "4.4.0-lite"
+material = "1.11.0"
+mockitoCore = "5.8.0"
+moxy = "2.2.2"
+recyclerview = "1.3.2"
+kotlin = "1.9.22"
+mavenPublish = "0.25.3"
+devtoolsKsp = "1.9.21-1.0.16"
+dokka = "1.9.10"
+retrofit = "2.9.0"
+runner = "1.5.2"
+rxjava = "2.2.21"
+rxandroid = "2.1.1"
+safeArgs = "2.7.6"
+timber = "5.0.1"
+vectordrawable = "1.1.0"
+
+[libraries]
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVer" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraxVer" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraxVer" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "concurrentFuturesKtx" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+androidx-vectordrawable = { module = "androidx.vectordrawable:vectordrawable", version.ref = "vectordrawable" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertjCore" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVer" }
+insetter = { module = "dev.chrisbanes.insetter:insetter", version.ref = "insetter" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin"}
+kotlin-inject-runtime = { module = "me.tatarka.inject:kotlin-inject-runtime", version.ref = "kotlinInject" }
+kotlin-inject-compiler-ksp = { module = "me.tatarka.inject:kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+maps-mobile = { module = "com.yandex.android:maps.mobile", version.ref = "mapsMobile" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+moxy = { module = "com.github.moxy-community:moxy", version.ref = "moxy" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-adapter-rxjava2 = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "safeArgs" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtoolsKsp" }
+kotlin-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

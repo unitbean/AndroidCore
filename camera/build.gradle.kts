@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -37,16 +37,14 @@ android {
     }
 }
 
-val cameraxVer = "1.3.1"
-
 dependencies {
 
-    api("androidx.camera:camera-core:${cameraxVer}")
-    api("androidx.camera:camera-view:${cameraxVer}")
-    implementation("androidx.camera:camera-camera2:${cameraxVer}")
-    implementation("androidx.camera:camera-lifecycle:${cameraxVer}")
+    api(libs.androidx.camera.core)
+    api(libs.camera.view)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
 
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation(libs.androidx.ktx)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.concurrent.futures.ktx)
 }

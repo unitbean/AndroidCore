@@ -1,11 +1,10 @@
-import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import com.vanniktech.maven.publish.SonatypeHost
 import Common.getLocalProperty
 
 plugins {
-    id("com.android.library")
-    id("com.vanniktech.maven.publish")
-    kotlin("android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kotlin.android)
 }
 
 tasks.dokkaJavadoc.configure {
@@ -61,23 +60,23 @@ android {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    testImplementation("org.mockito:mockito-core:5.8.0")
-    testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Deps.coroutinesVer}")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.kotlinx.coroutines.android)
 
-    implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
+    implementation(libs.kotlin)
 
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Deps.lifecycleVer}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Deps.lifecycleVer}")
-    implementation("androidx.biometric:biometric:1.1.0")
-    implementation("androidx.exifinterface:exifinterface:1.3.7")
-    implementation("com.github.moxy-community:moxy:${Deps.moxyVer}")
-    implementation("com.squareup.retrofit2:retrofit:${Deps.retrofitVer}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Deps.coroutinesVer}")
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.moxy)
+    implementation(libs.retrofit)
+    implementation(libs.kotlinx.coroutines.core)
 }
