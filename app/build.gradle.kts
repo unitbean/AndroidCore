@@ -3,6 +3,7 @@ import Common.getLocalProperty
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.devtools.ksp)
 }
 
@@ -39,6 +40,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     packaging {
         resources.excludes += "DebugProbesKt.bin"
@@ -76,8 +78,10 @@ dependencies {
 
     // retrofit 2
     implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.adapter.rxjava2)
+    implementation(libs.retrofit2.kotlinx.serialization.converter)
+
+    implementation(libs.kotlinx.serialization.json)
 
     // logging interceptor
     implementation(libs.okhttp3.logging.interceptor)
@@ -98,4 +102,6 @@ dependencies {
     implementation(libs.timber)
 
     debugImplementation(libs.leakcanary.android)
+    debugImplementation(libs.flaker.android.okhttp)
+    releaseImplementation(libs.flaker.android.okhttp.noop)
 }

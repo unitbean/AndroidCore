@@ -6,7 +6,10 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.ViewModelProvider
-import com.ub.utils.di.CoreViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.ub.utils.ui.biometric.BiometricViewModel
+import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import me.tatarka.inject.annotations.Scope
@@ -15,13 +18,18 @@ import me.tatarka.inject.annotations.Scope
 @Component
 abstract class AppComponent(private val application: Application) {
 
-    abstract val viewModelFactory: ViewModelProvider.Factory
-
-    protected val CoreViewModelProvider.bind: ViewModelProvider.Factory
-        @Provides @AppScope get() = this
+    val viewModelFactory: ViewModelProvider.Factory
+        @Provides @AppScope get() = viewModelFactory {
+            initializer {
+                BiometricViewModel(application, dataStore)
+            }
+        }
 
     val context: Application
         @Provides @AppScope get() = application
+
+    val json: Json
+        @Provides @AppScope get() = Json
 
     val dataStore: DataStore<Preferences>
         @Provides @AppScope get() = PreferenceDataStoreFactory.create(

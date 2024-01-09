@@ -4,12 +4,15 @@ import android.app.Application
 import com.ub.utils.di.components.AppComponent
 import com.ub.utils.di.components.MainComponent
 import com.ub.utils.di.components.create
+import io.github.rotbolt.flakerandroidokhttp.di.FlakerAndroidOkhttpContainer
 import timber.log.Timber
 
 class BaseApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        FlakerAndroidOkhttpContainer.install(this)
 
         initDI()
 
