@@ -1,30 +1,24 @@
 package com.ub.utils.ui.main
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Configuration.UI_MODE_NIGHT_MASK
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.ub.utils.BaseApplication
 import com.ub.utils.NetworkSpec
 import com.ub.utils.R
@@ -32,8 +26,10 @@ import com.ub.utils.UbNotify
 import com.ub.utils.VpnAware
 import com.ub.utils.colorize
 import com.ub.utils.databinding.FragmentMainBinding
+import com.ub.utils.isDarkMode
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.utils.provideFactory
+import com.ub.utils.settingsIntent
 import com.ub.utils.spannableBuilder
 import dev.chrisbanes.insetter.Insetter
 import dev.chrisbanes.insetter.applyInsetter
@@ -61,8 +57,19 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     private var binding: FragmentMainBinding? = null
 
     private val permissionCaller = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            showPush()
+        when {
+            isGranted -> showPush()
+            !ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.POST_NOTIFICATIONS) -> {
+                binding?.mainRoot?.let { root ->
+                    Snackbar
+                        .make(root, R.string.permission_is_not_granted_text, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.permission_is_not_granted_action) {
+                            val intent = root.context.settingsIntent
+                            startActivity(intent)
+                        }
+                        .show()
+                }
+            }
         }
     }
 
@@ -78,22 +85,11 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         binding?.btnPickImage?.setOnClickListener(this)
         binding?.btnClearCache?.setOnClickListener(this)
 
-        binding?.root?.applyInsetter {
-            type(statusBars = true) {
-                padding()
+        binding?.mainRoot?.applyInsetter {
+            type(statusBars = true, navigationBars = true) {
+                padding(top = true)
             }
-        }
-
-        binding?.root?.let { rootView ->
-            Insetter.builder()
-                .setOnApplyInsetsListener { insetView, insets, _ ->
-                    val topInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-                    binding?.statuses?.updateLayoutParams<MarginLayoutParams> {
-                        this.height = topInsets
-                    }
-                    insetView.updatePadding(top = topInsets)
-                }
-                .applyToView(rootView)
+            consume(Insetter.CONSUME_ALL)
         }
 
         launchAndRepeatWithViewLifecycle {
@@ -174,7 +170,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     private fun onShowConnectivityChange(spec: NetworkSpec) {
         binding?.statuses?.apply {
             removeAllViews()
-            val isDarkMode = this.context?.isDarkMode ?: false
+            val isDarkMode = this.resources?.isDarkMode ?: false
             val connectivityIcon = when (spec) {
                 NetworkSpec.Connecting -> ResourcesCompat.getDrawable(resources, R.drawable.outline_hourglass_empty_24, context?.theme)
                 is NetworkSpec.Active -> ResourcesCompat.getDrawable(resources, R.drawable.baseline_signal_cellular_alt_24, context?.theme)
@@ -234,11 +230,4 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
             R.id.btn_clear_cache -> viewModel.removeCachedFiles()
         }
     }
-
-    private val Context.isDarkMode: Boolean?
-        get() = when (resources.configuration.uiMode and UI_MODE_NIGHT_MASK) {
-            UI_MODE_NIGHT_NO -> false
-            UI_MODE_NIGHT_YES -> true
-            else -> null
-        }
 }

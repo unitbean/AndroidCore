@@ -22,4 +22,7 @@
     <string name="encrypt_action">Зашифровать</string>
     <string name="encrypted_text_will_be_here">зашифрованный текст будет показан здесь</string>
     <string name="decrypt_action">Дешифровать</string>
+
+    <string name="permission_is_not_granted_text">Разрешение не выдано</string>
+    <string name="permission_is_not_granted_action">Настройки</string>
 </resources>

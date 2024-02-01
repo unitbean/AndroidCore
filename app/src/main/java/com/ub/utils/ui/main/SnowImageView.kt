@@ -7,18 +7,20 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import androidx.appcompat.widget.AppCompatImageView
 import com.ub.utils.SnowflakesEffect
+import com.ub.utils.dpToPx
+import com.ub.utils.isDarkMode
 
 class SnowImageView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyleAttr: Int = 0
-): AppCompatImageView(context, attributeSet, defStyleAttr) {
+) : AppCompatImageView(context, attributeSet, defStyleAttr) {
 
     private val snowEffect: SnowflakesEffect = SnowflakesEffect(
-        Color.WHITE,
-        Color.WHITE,
-        dpToPx(1.5F),
-        dpToPx(0.5F),
+        if (context.resources.isDarkMode == true) Color.WHITE else Color.BLACK,
+        if (context.resources.isDarkMode == true) Color.WHITE else Color.BLACK,
+        context.dpToPx(1.5F),
+        context.dpToPx(0.5F),
         0,
         resources.displayMetrics.density
     )
@@ -26,9 +28,5 @@ class SnowImageView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         snowEffect.onDraw(this, canvas)
-    }
-
-    private fun dpToPx(dpValue: Float): Float {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, this.context.resources.displayMetrics)
     }
 }
