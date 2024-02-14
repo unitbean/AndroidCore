@@ -2,7 +2,10 @@ package com.ub.utils
 
 import android.Manifest
 import android.app.Activity
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -20,13 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.Callback
-import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import okio.Buffer
-import okio.BufferedSource
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InputStream
@@ -34,9 +35,8 @@ import java.net.ConnectException
 import java.net.InetAddress
 import java.net.URL
 import java.net.UnknownHostException
-import java.nio.charset.Charset
-import java.util.*
 import java.util.concurrent.TimeoutException
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -149,24 +149,23 @@ fun isValidEmail(email: String): Boolean {
  *
  * [ICanHazIp](http://icanhazip.com)
  *
- * [TrackIp](http://www.trackip.net/ip) IPv4/v6
+ * [TrackIp](https://trackip.net/ip) IPv4/v6
  *
  * [IPAPI](https://ipapi.co/ip) IPv4/v6
+ *
+ * [IdentMe](https://ident.me) IPv4
  *
  * @see [java.net.InetAddress] for working with type of address
  */
 @RequiresPermission(Manifest.permission.INTERNET)
-suspend fun getMyPublicIp(source: String = "https://api64.ipify.org"): Result<InetAddress> =
-    withContext(Dispatchers.IO) {
-        try {
-            val connection = URL(source).openConnection()
-            connection.getInputStream().use { iStream ->
+suspend fun getMyPublicIp(source: String = "https://api64.ipify.org", context: CoroutineContext = Dispatchers.IO): Result<InetAddress> =
+    withContext(context) {
+        runCatching {
+            URL(source).openConnection().getInputStream().use { iStream ->
                 val buff = ByteArray(1024)
                 val read = iStream.read(buff)
-                Result.success(InetAddress.getByName(String(buff, 0, read)))
+                InetAddress.getByName(String(buff, 0, read))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 
@@ -203,10 +202,11 @@ val RequestBody.bodyToString: String?
  */
 val ResponseBody.bodyToString: String
     get() {
-        val source: BufferedSource = source()
-        source.request(Long.MAX_VALUE)
-        val charset = contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
-        return source.buffer.clone().readString(charset)
+        return source().apply {
+            request(contentLength())
+        }.buffer.clone().readString(
+            contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+        )
     }
 
 /**

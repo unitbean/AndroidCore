@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileNotFoundException
@@ -79,12 +80,16 @@ fun Context.createUriReadyForWrite(
  * @return name with extension or not
  */
 fun Context.getFileNameFromUri(uri: Uri): String? {
-    return contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        val isFound = cursor.moveToFirst()
-        if (isFound) {
-            val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            cursor.getString(columnIndex)
-        } else null
+    return when (uri.scheme) {
+        "content" -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val isFound = cursor.moveToFirst()
+            if (isFound) {
+                val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                cursor.getString(columnIndex)
+            } else null
+        }
+        "file" -> uri.toFile().name
+        else -> null
     }
 }
 
@@ -94,12 +99,16 @@ fun Context.getFileNameFromUri(uri: Uri): String? {
  * @return size in bytes or not
  */
 fun Context.getFileSizeByUri(uri: Uri): Long? {
-    return contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        val isFound = cursor.moveToFirst()
-        if (isFound) {
-            val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            cursor.getLong(columnIndex)
-        } else null
+    return when (uri.scheme) {
+        "content" -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val isFound = cursor.moveToFirst()
+            if (isFound) {
+                val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                cursor.getLong(columnIndex)
+            } else null
+        }
+        "file" -> uri.toFile().length()
+        else -> null
     }
 }
 
