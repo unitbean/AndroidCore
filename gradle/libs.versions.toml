@@ -1,6 +1,6 @@
 [versions]
 activityKtx = "1.8.2"
-androidGradlePlugin = "8.2.2"
+androidGradlePlugin = "8.3.0"
 appcompat = "1.6.1"
 assertjCore = "3.25.3"
 biometric = "1.1.0"
@@ -17,7 +17,7 @@ insetter = "0.6.1"
 junit = "4.13.2"
 kotlinInject = "0.6.3"
 kotlinxCoroutinesCore = "1.8.0"
-kotlinx-serialization-json = "1.6.2"
+kotlinx-serialization-json = "1.6.3"
 ktx = "1.12.0"
 leakcanaryAndroid = "2.13"
 legacySupportV4 = "1.0.0"
@@ -96,3 +96,4 @@ maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPubli
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtoolsKsp" }
 kotlin-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
