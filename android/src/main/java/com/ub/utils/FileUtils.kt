@@ -1,5 +1,6 @@
 package com.ub.utils
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -16,7 +17,6 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
-import java.lang.NullPointerException
 
 /**
  * Remove [file] from specified folder in defined [authority]
@@ -81,14 +81,14 @@ fun Context.createUriReadyForWrite(
  */
 fun Context.getFileNameFromUri(uri: Uri): String? {
     return when (uri.scheme) {
-        "content" -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        ContentResolver.SCHEME_CONTENT -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             val isFound = cursor.moveToFirst()
             if (isFound) {
                 val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 cursor.getString(columnIndex)
             } else null
         }
-        "file" -> uri.toFile().name
+        ContentResolver.SCHEME_FILE -> uri.toFile().name
         else -> null
     }
 }
@@ -100,14 +100,14 @@ fun Context.getFileNameFromUri(uri: Uri): String? {
  */
 fun Context.getFileSizeByUri(uri: Uri): Long? {
     return when (uri.scheme) {
-        "content" -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        ContentResolver.SCHEME_CONTENT -> contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             val isFound = cursor.moveToFirst()
             if (isFound) {
                 val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
                 cursor.getLong(columnIndex)
             } else null
         }
-        "file" -> uri.toFile().length()
+        ContentResolver.SCHEME_FILE -> uri.toFile().length()
         else -> null
     }
 }
