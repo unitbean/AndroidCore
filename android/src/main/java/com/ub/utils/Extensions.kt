@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.util.Property
 import android.util.TypedValue
 import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.activity.ComponentDialog
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
@@ -91,6 +92,21 @@ fun <T : View> T.animator(property: String, vararg values: Int): ObjectAnimator 
 
 fun Drawable.colorize(@ColorInt colorInt: Int) {
     colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(colorInt, BlendModeCompat.SRC_IN)
+}
+
+/**
+ * Launches a new coroutine and repeats [block] every time the [ComponentActivity]'s [ComponentActivity.lifecycleScope]
+ * is in and out of [minActiveState] lifecycle state.
+ */
+inline fun ComponentActivity.launchAndRepeatWithViewLifecycle(
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    crossinline block: suspend CoroutineScope.() -> Unit
+) {
+    lifecycleScope.launch {
+        lifecycle.repeatOnLifecycle(minActiveState) {
+            block()
+        }
+    }
 }
 
 /**
