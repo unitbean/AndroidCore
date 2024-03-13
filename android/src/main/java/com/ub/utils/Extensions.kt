@@ -146,12 +146,12 @@ fun ViewModel.withUseCaseScope(
     loadingUpdater: (suspend (Boolean) -> Unit)? = null,
     onError: (suspend (Exception) -> Unit)? = null,
     onComplete: (suspend () -> Unit)? = null,
-    block: (suspend () -> Unit)
+    block: (suspend CoroutineScope.() -> Unit)
 ): Job {
     return viewModelScope.launch {
         loadingUpdater?.invoke(true)
         try {
-            block()
+            block(this)
         } catch (e: Exception) {
             onError?.invoke(e)
         } finally {
