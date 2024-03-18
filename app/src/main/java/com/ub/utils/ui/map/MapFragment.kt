@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import com.ub.utils.BuildConfig
 import com.ub.utils.R
 import com.ub.utils.databinding.FragmentMapBinding
+import com.ub.utils.isDarkMode
 import com.ub.utils.launchAndRepeatWithViewLifecycle
 import com.ub.yandex.YandexCameraEvent
 import com.ub.yandex.YandexMapFragment
@@ -111,6 +112,7 @@ class MapFragment : Fragment(R.layout.fragment_map), YandexMapReadyCallback {
     }
 
     override fun onMapReady(yandexMap: Map) {
+        yandexMap.isNightModeEnabled = resources.isDarkMode ?: false
         Toast.makeText(
             requireContext(),
             "${yandexMap.cameraPosition.target.latitude} ${yandexMap.cameraPosition.target.longitude}",
