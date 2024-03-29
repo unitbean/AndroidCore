@@ -2,7 +2,6 @@ package com.ub.utils.di.services
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.ub.utils.BuildConfig
 import com.ub.utils.di.components.AppScope
 import com.ub.utils.di.services.api.responses.PostResponse
@@ -15,6 +14,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
 import java.util.concurrent.TimeUnit
 
