@@ -39,12 +39,17 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
+        compose = true
         viewBinding = true
         buildConfig = true
     }
     packaging {
-        resources.excludes += "DebugProbesKt.bin"
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "DebugProbesKt.bin"
+        }
     }
+    composeOptions.kotlinCompilerExtensionVersion = "1.5.11"
 }
 
 dependencies {
@@ -58,6 +63,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
     // android x
     implementation(libs.androidx.appcompat)
@@ -72,13 +81,21 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.biometric)
 
+    // compose
+    implementation(libs.androidx.compose.activity)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+
     // lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // retrofit 2
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.adapter.rxjava2)
+    implementation(platform(libs.retrofit2.bom))
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.adapter.rxjava2)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
 
     implementation(libs.kotlinx.serialization.json)

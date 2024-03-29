@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.exifinterface)
     implementation(libs.moxy)
-    implementation(libs.retrofit)
+    implementation(platform(libs.retrofit2.bom))
+    implementation(libs.retrofit2)
     implementation(libs.kotlinx.coroutines.core)
 }
