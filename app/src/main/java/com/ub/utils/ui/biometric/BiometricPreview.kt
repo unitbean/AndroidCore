@@ -7,7 +7,8 @@ import com.ub.utils.ui.theme.CoreTheme
 
 @Preview(
     device = "id:pixel",
-    uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true
 )
 @Composable
 private fun BiometricPreviewLight() {
@@ -25,7 +26,8 @@ private fun BiometricPreviewLight() {
 
 @Preview(
     device = "id:pixel",
-    uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun BiometricPreviewNight() {
