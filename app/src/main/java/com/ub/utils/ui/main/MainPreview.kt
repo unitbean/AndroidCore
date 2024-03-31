@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.ub.utils.NetworkSpec
 import com.ub.utils.ui.theme.CoreTheme
+import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 @Preview(
@@ -33,7 +34,8 @@ private fun MainPreview() {
             state = MainState(
                 networkSpec = NetworkSpec.Active(isVpn = true)
             ),
-            onEvent = {}
+            onEvent = {},
+            error = emptyFlow()
         )
     }
 }

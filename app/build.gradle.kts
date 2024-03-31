@@ -93,6 +93,7 @@ dependencies {
     // lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // retrofit 2
     implementation(platform(libs.retrofit2.bom))

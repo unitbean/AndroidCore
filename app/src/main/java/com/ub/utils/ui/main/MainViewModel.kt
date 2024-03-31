@@ -1,11 +1,13 @@
 package com.ub.utils.ui.main
 
 import android.app.Application
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.ub.security.AesGcmEncryption
 import com.ub.security.AuthenticatedEncryption
 import com.ub.security.toSecretKey
@@ -22,7 +24,11 @@ import com.ub.utils.withUseCaseScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 import timber.log.Timber
@@ -55,6 +61,23 @@ class MainViewModel(
     private val _image = MutableSharedFlow<Bitmap>()
     val image = _image.asSharedFlow()
 
+    private val _error = MutableSharedFlow<MainError>()
+    val error = _error.asSharedFlow()
+
+    val state = combine(
+        connectivity,
+        image
+    ) { connectivity, image ->
+        MainState(
+            displayingImage = image,
+            networkSpec = connectivity
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = MainState()
+    )
+
     init {
         load()
         loadImage()
@@ -62,7 +85,18 @@ class MainViewModel(
 
     private fun load() {
         withUseCaseScope(
-            onError = { e -> Timber.e(e, "POST %s", e.message ?: "Error") }
+            onError = { e ->
+                Timber.e(e, "POST %s", e.message ?: "Error")
+                e.message?.let {
+                    _error.emit(
+                        MainError(
+                            message = it,
+                            action = null,
+                            intent = null
+                        )
+                    )
+                }
+            }
         ) {
             val posts = interactor.loadPosts()
             list.renew(posts)
@@ -73,7 +107,18 @@ class MainViewModel(
 
     fun generatePushContent() {
         withUseCaseScope(
-            onError = { e -> Timber.e(e, "PushContent %s", e.message) }
+            onError = { e ->
+                Timber.e(e, "PushContent %s", e.message)
+                e.message?.let {
+                    _error.emit(
+                        MainError(
+                            message = it,
+                            action = null,
+                            intent = null
+                        )
+                    )
+                }
+            }
         ) {
             val push = interactor.generatePushContent(list)
             _showPush.emit(push)
@@ -93,6 +138,22 @@ class MainViewModel(
             )
             val bitmap = context.getImage(Uri.fromFile(savedFile))
             _image.emit(bitmap)
+        }
+    }
+
+    fun propagateError(
+        message: String,
+        action: String?,
+        intent: Intent?
+    ) {
+        withUseCaseScope {
+            _error.emit(
+                MainError(
+                    message = message,
+                    action = action,
+                    intent = intent
+                )
+            )
         }
     }
 

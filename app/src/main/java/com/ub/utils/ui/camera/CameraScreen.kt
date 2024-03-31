@@ -1,6 +1,5 @@
 package com.ub.utils.ui.camera
 
-import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
