@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.constraintlayout.compose)
 
     // lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -115,6 +116,9 @@ dependencies {
     // kotlin coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(platform(libs.coil.bom))
+    implementation(libs.bundles.coil)
 
     implementation(libs.insetter)
     implementation(libs.timber)

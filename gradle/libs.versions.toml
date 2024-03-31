@@ -6,9 +6,11 @@ assertjCore = "3.25.3"
 biometric = "1.1.0"
 cameraxVer = "1.3.2"
 cardview = "1.0.0"
+coil = "2.6.0"
 concurrentFuturesKtx = "1.1.0"
 constraintlayout = "2.1.4"
 composeBom = "2024.03.00"
+constraintlayoutCompose = "1.0.1"
 datastorePreferences = "1.0.0"
 espressoCore = "3.5.1"
 exifinterface = "1.3.7"
@@ -49,6 +51,7 @@ androidx-compose-activity = { module = "androidx.activity:activity-compose", ver
 androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
@@ -73,6 +76,9 @@ androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-vectordrawable = { module = "androidx.vectordrawable:vectordrawable", version.ref = "vectordrawable" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertjCore" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVer" }
+coil-bom = { module = "io.coil-kt:coil-bom", version.ref = "coil" }
+coil = { module = "io.coil-kt:coil" }
+coil-compose = { module = "io.coil-kt:coil-compose" }
 flaker-android-okhttp = { module = "io.github.rotbolt:flaker-android-okhttp", version.ref = "flakerAndroidOkhttp" }
 flaker-android-okhttp-noop = { module = "io.github.rotbolt:flaker-android-okhttp-noop", version.ref = "flakerAndroidOkhttp" }
 insetter = { module = "dev.chrisbanes.insetter:insetter", version.ref = "insetter" }
@@ -107,3 +113,6 @@ devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtoolsKsp" }
 kotlin-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+
+[bundles]
+coil = ["coil", "coil-compose"]
