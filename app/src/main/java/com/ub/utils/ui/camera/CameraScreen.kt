@@ -30,9 +30,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.ub.camera.CameraExternalStorage
+import com.ub.camera.CameraOutputStream
 import com.ub.camera.CameraSession
 import com.ub.camera.setupExtensions
 import com.ub.utils.R
+import com.ub.utils.createUriReadyForWrite
 import kotlinx.coroutines.launch
 
 @Composable
@@ -63,8 +66,9 @@ internal fun CameraScreen(
             )
         }
 
-        val cameraState by cameraSession.startSession()
-            .collectAsState(initial = com.ub.camera.CameraState())
+        val cameraState by remember {
+            cameraSession.startSession()
+        }.collectAsState(initial = com.ub.camera.CameraState())
         var cameraIndex by remember {
             mutableIntStateOf(0)
         }
@@ -133,14 +137,25 @@ internal fun CameraScreen(
         ) {
             Button(
                 onClick = {
-                    onEvent.invoke(CameraEvent.MakePhotoToInternal)
+                    scope.launch {
+                        val uri = cameraSession.takePhoto(CameraExternalStorage()) ?: return@launch
+                        onEvent.invoke(CameraEvent.MakePhotoToInternal(uri))
+                    }
                 }
             ) {
                 Text(text = stringResource(id = R.string.capture_files_action))
             }
             Button(
                 onClick = {
-                    onEvent.invoke(CameraEvent.MakePhotoToExternal)
+                    scope.launch {
+                        val uriForWrite = context.createUriReadyForWrite(
+                            nameWithExtension = "temp_photo.jpg",
+                            authority = "${context.packageName}.core.fileprovider"
+                        )
+                        val outStream = context.contentResolver.openOutputStream(uriForWrite)
+                        val uri = cameraSession.takePhoto(CameraOutputStream(outStream ?: return@launch)) ?: return@launch
+                        onEvent.invoke(CameraEvent.MakePhotoToExternal(uri))
+                    }
                 }
             ) {
                 Text(text = stringResource(id = R.string.capture_external_action))
