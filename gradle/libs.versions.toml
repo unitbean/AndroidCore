@@ -1,6 +1,6 @@
 [versions]
 activityKtx = "1.8.2"
-androidGradlePlugin = "8.3.1"
+androidGradlePlugin = "8.3.2"
 appcompat = "1.6.1"
 assertjCore = "3.25.3"
 biometric = "1.1.0"
