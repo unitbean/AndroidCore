@@ -6,7 +6,6 @@ import com.ub.utils.BuildConfig
 import com.ub.utils.di.components.AppScope
 import com.ub.utils.di.services.api.responses.PostResponse
 import com.ub.utils.download
-import io.github.rotbolt.flakerokhttpcore.FlakerInterceptor
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Inject
 import okhttp3.Interceptor
@@ -26,8 +25,6 @@ class ApiService(
 
     private val converter = json.asConverterFactory("application/json".toMediaType())
 
-    private val flakerInterceptor: Interceptor = FlakerInterceptor.Builder().build()
-
     private val loggingInterceptor: Interceptor = HttpLoggingInterceptor().setLevel(
         if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     )
@@ -46,7 +43,6 @@ class ApiService(
         OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(flakerInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }

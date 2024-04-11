@@ -125,6 +125,4 @@ dependencies {
     implementation(libs.timber)
 
     debugImplementation(libs.leakcanary.android)
-    debugImplementation(libs.flaker.android.okhttp)
-    releaseImplementation(libs.flaker.android.okhttp.noop)
 }
