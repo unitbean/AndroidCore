@@ -248,8 +248,9 @@ fun openSoftKeyboard(context: Context, view: View) {
 fun Window.keyboardForView(view: View, isShow: Boolean) {
     val controller = WindowCompat.getInsetsController(this, view)
     if (isShow && view.isFocusable) {
-        controller.show(WindowInsetsCompat.Type.ime())
-        view.requestFocus()
+        if (view.requestFocus()) {
+            controller.show(WindowInsetsCompat.Type.ime())
+        }
     } else if (!isShow && view == currentFocus) {
         controller.hide(WindowInsetsCompat.Type.ime())
         currentFocus?.clearFocus()
