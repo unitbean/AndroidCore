@@ -36,6 +36,15 @@ var Calendar.milliseconds
     inline get() = this.get(Calendar.MILLISECOND)
     inline set(value) = this.set(Calendar.MILLISECOND, value)
 
+/**
+ * Call this after changing any of [Calendar.fields] values from functions above
+ *
+ * @see [change]
+ */
+fun Calendar.calculateTime() {
+    this.timeInMillis
+}
+
 infix fun Calendar.addHours(hours: Int) {
     timeInMillis += 1000 * 60 * 60 * hours
 }
@@ -49,3 +58,11 @@ infix fun Calendar.dayRoll(amount: Int) {
 }
 
 fun Calendar.debugPrint(): String = "$day.$month.$year day of week: $dayOfWeek $hours:$minutes:$seconds:$milliseconds in timezone $timeZone"
+
+/**
+ * Mutation [Calendar] instance
+ */
+inline fun Calendar.change(mutation: Calendar.() -> Unit) {
+    mutation.invoke(this)
+    this.calculateTime()
+}
