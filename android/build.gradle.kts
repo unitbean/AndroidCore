@@ -80,4 +80,5 @@ dependencies {
     implementation(platform(libs.retrofit2.bom))
     implementation(libs.retrofit2)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.test)
 }

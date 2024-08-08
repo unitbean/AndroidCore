@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.maven.publish) apply false
     alias(libs.plugins.android.navigation.safeargs) apply false
     alias(libs.plugins.devtools.ksp) apply false
-
+    alias(libs.plugins.compose.compiler) apply false
 }
 
 subprojects {

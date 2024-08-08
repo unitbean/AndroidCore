@@ -1,6 +1,6 @@
 [versions]
-activityKtx = "1.9.0"
-androidGradlePlugin = "8.5.0"
+activityKtx = "1.9.1"
+androidGradlePlugin = "8.5.1"
 appcompat = "1.7.0"
 assertjCore = "3.25.3"
 biometric = "1.1.0"
@@ -12,30 +12,30 @@ constraintlayout = "2.1.4"
 composeBom = "2024.06.00"
 constraintlayoutCompose = "1.0.1"
 datastorePreferences = "1.1.1"
-espressoCore = "3.5.1"
+espressoCore = "3.6.1"
 exifinterface = "1.3.7"
-fragmentKtx = "1.8.0"
+fragmentKtx = "1.8.2"
 insetter = "0.6.1"
 junit = "4.13.2"
 kotlinInject = "0.7.1"
 kotlinxCoroutinesCore = "1.8.1"
-kotlinx-serialization-json = "1.6.3"
+kotlinx-serialization-json = "1.7.1"
 ktx = "1.13.1"
 leakcanaryAndroid = "2.14"
 legacySupportV4 = "1.0.0"
-lifecycleViewmodelKtx = "2.8.2"
+lifecycleViewmodelKtx = "2.8.4"
 loggingInterceptor = "4.12.0"
 mapsMobile = "4.5.1-lite"
 material = "1.12.0"
 mockitoCore = "5.12.0"
 moxy = "2.2.2"
 recyclerview = "1.3.2"
-kotlin = "1.9.23"
-mavenPublish = "0.28.0"
-devtoolsKsp = "1.9.23-1.0.19"
+kotlin = "2.0.10"
+mavenPublish = "0.29.0"
+devtoolsKsp = "2.0.10-1.0.24"
 dokka = "1.9.10"
 retrofit = "2.11.0"
-runner = "1.5.2"
+runner = "1.6.1"
 rxjava = "2.2.21"
 rxandroid = "2.1.1"
 safeArgs = "2.7.7"
@@ -86,6 +86,7 @@ kotlin-inject-runtime = { module = "me.tatarka.inject:kotlin-inject-runtime", ve
 kotlin-inject-compiler-ksp = { module = "me.tatarka.inject:kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
@@ -111,6 +112,7 @@ devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtoolsKsp" }
 kotlin-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [bundles]
 coil = ["coil", "coil-compose"]
