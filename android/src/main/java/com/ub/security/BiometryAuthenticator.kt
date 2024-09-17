@@ -112,6 +112,7 @@ class BiometryAuthenticator {
                 .setTitle(title)
                 .setNegativeButtonText(negativeText)
                 .setSubtitle(subtitle)
+                .setConfirmationRequired(false)
                 .build()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val cipher =
