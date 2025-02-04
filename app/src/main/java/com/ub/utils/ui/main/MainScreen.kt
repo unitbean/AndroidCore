@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.ub.utils.NetworkSpec
 import com.ub.utils.R
 import com.ub.utils.VpnAware

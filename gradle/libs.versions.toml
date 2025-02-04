@@ -1,44 +1,44 @@
 [versions]
-activityKtx = "1.9.2"
-androidGradlePlugin = "8.6.1"
+activityKtx = "1.10.0"
+androidGradlePlugin = "8.8.0"
 appcompat = "1.7.0"
 assertjCore = "3.26.3"
 biometric = "1.1.0"
-cameraxVer = "1.3.4"
+cameraxVer = "1.4.1"
 cardview = "1.0.0"
-coil = "2.7.0"
+coil = "3.0.4"
 concurrentFuturesKtx = "1.2.0"
-constraintlayout = "2.1.4"
-composeBom = "2024.09.03"
-constraintlayoutCompose = "1.0.1"
-datastorePreferences = "1.1.1"
+constraintlayout = "2.2.0"
+composeBom = "2025.01.01"
+constraintlayoutCompose = "1.1.0"
+datastorePreferences = "1.1.2"
 espressoCore = "3.6.1"
 exifinterface = "1.3.7"
-fragmentKtx = "1.8.4"
+fragmentKtx = "1.8.5"
 insetter = "0.6.1"
 junit = "4.13.2"
 kotlinInject = "0.7.2"
-kotlinxCoroutinesCore = "1.9.0"
-kotlinx-serialization-json = "1.7.3"
-ktx = "1.13.1"
+kotlinxCoroutinesCore = "1.10.1"
+kotlinx-serialization-json = "1.8.0"
+ktx = "1.15.0"
 leakcanaryAndroid = "2.14"
 legacySupportV4 = "1.0.0"
-lifecycleViewmodelKtx = "2.8.6"
+lifecycleViewmodelKtx = "2.8.7"
 loggingInterceptor = "4.12.0"
 mapsMobile = "4.6.1-lite"   ## https://yandex.ru/dev/mapkit/doc/ru/versions since 4.7.0 is 24 minSdk required, and 4.8.0 -> 26
 material = "1.12.0"
 mockitoCore = "5.14.1"
 moxy = "2.2.2"
-recyclerview = "1.3.2"
-kotlin = "2.0.20"
+recyclerview = "1.4.0"
+kotlin = "2.1.10"
 mavenPublish = "0.29.0"
-devtoolsKsp = "2.0.20-1.0.24"
+devtoolsKsp = "2.1.10-1.0.29"
 dokka = "1.9.10"
 retrofit = "2.11.0"
 runner = "1.6.2"
 rxjava = "2.2.21"
 rxandroid = "2.1.1"
-safeArgs = "2.8.2"
+safeArgs = "2.8.6"
 timber = "5.0.1"
 vectordrawable = "1.2.0"
 
@@ -76,9 +76,9 @@ androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-vectordrawable = { module = "androidx.vectordrawable:vectordrawable", version.ref = "vectordrawable" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertjCore" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVer" }
-coil-bom = { module = "io.coil-kt:coil-bom", version.ref = "coil" }
-coil = { module = "io.coil-kt:coil" }
-coil-compose = { module = "io.coil-kt:coil-compose" }
+coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
+coil = { module = "io.coil-kt.coil3:coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose" }
 insetter = { module = "dev.chrisbanes.insetter:insetter", version.ref = "insetter" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlin = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin"}

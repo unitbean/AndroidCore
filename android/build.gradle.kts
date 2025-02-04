@@ -23,9 +23,9 @@ mavenPublishing {
 
 android {
     namespace = "com.ub.ubutils"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
-        minSdk = 19
+        minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }

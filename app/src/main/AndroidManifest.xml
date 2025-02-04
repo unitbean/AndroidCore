@@ -18,7 +18,6 @@
         android:name=".BaseApplication"
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/AppTheme"
-        tools:replace="android:allowBackup"
         tools:targetApi="tiramisu">
         <activity
             android:name=".ui.MainActivity"

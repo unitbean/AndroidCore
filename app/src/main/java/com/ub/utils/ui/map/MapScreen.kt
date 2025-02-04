@@ -1,5 +1,6 @@
 package com.ub.utils.ui.map
 
+import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentContainerView
 import com.ub.utils.R
 
@@ -39,7 +39,7 @@ internal fun MapScreen() {
         val context = LocalContext.current
         val fragmentContainer = remember {
             FragmentContainerView(context).apply {
-                id = ViewCompat.generateViewId()
+                id = View.generateViewId()
             }
         }
         LaunchedEffect(key1 = isMapDisplayed) {

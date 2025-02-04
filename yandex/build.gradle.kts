@@ -24,7 +24,7 @@ tasks.dokkaJavadoc.configure {
 
 android {
     namespace = "com.ub.yandex"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 21
